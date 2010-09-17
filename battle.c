@@ -12,6 +12,10 @@ struct wpn {
 	int modTech;
 };
 
+struct invtry {
+	int potions = 0;
+};
+
 struct plyr {
 	char name[40];
 	int baseHp;
