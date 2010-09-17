@@ -43,6 +43,7 @@ int main()
 		printf("You did %d damage!", attackRandomizer(50));
 		getchar();
 	}
+	//Do something more useful!!!
 	return 1;
 }
 
