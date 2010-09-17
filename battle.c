@@ -27,11 +27,26 @@ struct plyr {
 	int armorModDefense;
 	struct wpn weapon;
 	int level;
+	
+	//Cumulative data
+	
 	int cumAttack;
 	int cumDefense;
 	int cumTech;
+	
+	//Live data
+	
 	int curHp;
 	int curMp;
+	struct invtry inventory;
+	
+	//Circle of weaknesses
+	
+	int typeEngineering = 0;
+	int typeArt = 0;
+	int typeBusiness = 0;
+	
+	//Eng beats business, business beats art, art beats engineering
 };
 
 void loadEnemy(int);
@@ -39,7 +54,7 @@ void slowPrint(char*, int);
 int rollD20();
 int attackRandomizer();
 
-struct plyr players[2];
+struct plyr player[2];
 
 int main()
 {
@@ -52,9 +67,40 @@ int main()
 	return 1;
 }
 
-void loadEnemy(int id){
-	printf("h");
-	//Load stuff into players[1] (enemy)
+void loadEnemy(int globalID, int enemyID){
+	switch (enemyID) {
+		case 0: //ENEMY: BRUIN
+			player[globalID].name = "Bruin";
+			player[globalID].baseHp = 10;
+			player[globalID].baseMp = 2;
+			player[globalID].baseTech = 4;
+			player[globalID].baseAttack = 3;
+			player[globalID].baseDefense = 1;
+			player[globalID].armorName = "UCLA Sweatshirt";
+			player[globalID].armorModDefense = 1;
+			player[globalID].weapon.name = "Defeat Bell";
+			player[globalID].weapon.modAttack = 1;
+			player[globalID].weapon.modTech = 1;
+			player[globalID].level = 1;
+			player[globalID].inventory.potions = 1;
+			break;
+		case 1:
+			//do another
+			break;
+
+		default:
+			break;
+	}
+	player[globalID].curHp = player[globalID].baseHp;  //Sets the enemy's live HP to max
+	player[globalID].curMp = player[globalID].baseMp;  //Sets the enemy's live MP to max
+	updatePlayerData(globalID);  //Sets the cumulative attack, defense and tech to the base plus the weapon and armor mods
+}
+
+void updatePlayerData(int globalID)
+{
+	player[globalID].cumAttack = player[globalID].baseAttack + player[globalID].weapon.modAttack;
+	player[globalID].cumDefense = player[globalID].baseDefense + player[globalID].armorModDefense;
+	player[globalID].cumTech = player[globalID].baseTech + player[globalID].weapon.modTech;
 }
 
 int rollD20()  //Randomly roll a value between 1 and 20
@@ -105,4 +151,3 @@ void slowPrint(char *characters, int interval)
 		usleep(interval);
 	}
 }
-
