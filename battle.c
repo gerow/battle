@@ -14,7 +14,7 @@ struct wpn {
 };
 
 struct invtry {
-	int potions = 0;
+	int potions;
 };
 
 struct plyr {
@@ -43,43 +43,42 @@ struct plyr {
 	
 	//Circle of weaknesses
 	
-	int typeEngineering = 0;
-	int typeArt = 0;
-	int typeBusiness = 0;
+	int typeEngineering;
+	int typeArt;
+	int typeBusiness;
 	
 	//Eng beats business, business beats art, art beats engineering
 };
 
-void loadEnemy(int);
+void loadEnemy(int, int);
 void slowPrint(char*, int);
 int rollD20();
 int attackRandomizer();
+void updatePlayerData(int);
 
 struct plyr player[2];
 
 int main()
 {
-	while (1) {
-		printf("You did %d damage!", attackRandomizer(50));
-		getchar();
-	}
+	loadEnemy(ENEMY_ID, 0);
 	//Do something more useful!!!
 	//And again...
-	return 1;
+	getchar();
+	return 0;
 }
 
 void loadEnemy(int globalID, int enemyID){
 	switch (enemyID) {
 		case 0: //ENEMY: BRUIN
-			player[globalID].name = "Bruin";
+			strcpy(player[globalID].name, "Bruin");
 			player[globalID].baseHp = 10;
 			player[globalID].baseMp = 2;
 			player[globalID].baseTech = 4;
 			player[globalID].baseAttack = 3;
 			player[globalID].baseDefense = 1;
-			player[globalID].armorName = "UCLA Sweatshirt";
+			strcpy(player[globalID].armorName, "UCLA Sweatshirt");
 			player[globalID].armorModDefense = 1;
-			player[globalID].weapon.name = "Defeat Bell";
+			strcpy(player[globalID].weapon.name, "Defeat Bell");
 			player[globalID].weapon.modAttack = 1;
 			player[globalID].weapon.modTech = 1;
 			player[globalID].level = 1;
@@ -131,7 +130,7 @@ int attackRandomizer(int baseAttack)
 		attackModifier = 0.5;
 	}
 	else if (roll == 20){
-		slowPrint("*****  SMAAAASH!!  *****\n", 20000);
+		slowPrint("*****  SMAAAASH!!  *****\n", SLOWPRINT_INTERVAL);
 		printf("A critical hit!\n");
 		attackModifier = 3.0;
 	}
