@@ -9,14 +9,14 @@
 struct wpn {
 	char name[40];
 	int modAttack;
-	int modMagic;
+	int modTech;
 };
 
 struct plyr {
 	char name[40];
 	int baseHp;
 	int baseMp;
-	int baseMagic;
+	int baseTech;
 	int baseAttack;
 	int baseDefense;
 	char armorName[40];
@@ -25,7 +25,7 @@ struct plyr {
 	int level;
 	int cumAttack;
 	int cumDefense;
-	int cumMagic;
+	int cumTech;
 	int curHp;
 	int curMp;
 };
