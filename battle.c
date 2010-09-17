@@ -5,6 +5,7 @@
 
 #define PLAYER_ID 0
 #define ENEMY_ID 1
+#define SLOWPRINT_INTERVAL 20000
 
 struct wpn {
 	char name[40];
