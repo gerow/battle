@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <time.h>
 
 #define PLAYER_ID 0
 #define ENEMY_ID 1
@@ -47,27 +48,32 @@ struct plyr {
 	int typeArt;
 	int typeBusiness;
 	
-	//Eng beats business, business beats art, art beats engineering
+	//Eng beats business, business beats art, art beats engineering.  mainly just because.
 };
 
 void loadEnemy(int, int);
 void slowPrint(char*, int);
 int rollD20();
-int attackRandomizer();
+int doAttack();
 void updatePlayerData(int);
+void describe(int);
+void initPlayer(int);
+void testFunc();
 
 struct plyr player[2];
 
 int main()
 {
-	loadEnemy(ENEMY_ID, 0);
-	//Do something more useful!!!
-	//And again...
-	getchar();
+	srand((unsigned)(time(0)));
+	testFunc();
 	return 0;
 }
 
 void loadEnemy(int globalID, int enemyID){
+	player[globalID].typeEngineering = 0;
+	player[globalID].typeArt = 0;
+	player[globalID].typeBusiness = 0;
+	player[globalID].inventory.potions = 0;
 	switch (enemyID) {
 		case 0: //ENEMY: BRUIN
 			strcpy(player[globalID].name, "Bruin");
@@ -110,7 +116,7 @@ int rollD20()  //Randomly roll a value between 1 and 20
 	return result;
 }
 
-int attackRandomizer(int baseAttack)
+int doAttack(int baseAttack)
 {
 	int roll;
 	double attackModifier;
@@ -151,3 +157,54 @@ void slowPrint(char *characters, int interval)
 		usleep(interval);
 	}
 }
+
+void describe(enemyID)
+{
+	printf("You are fighting a %s.  It appears to be wearing a %s and wielding a %s.\n",
+		   player[enemyID].name,
+		   player[enemyID].armorName,
+		   player[enemyID].weapon.name);
+}
+
+void doBattle()
+{
+	//BATTLE STUFF HERE!!!
+}
+
+void initPlayer(int id)
+{
+	int nameRight = 0;
+	char yesNo;
+	char room[30];
+	if (rand() % 2){
+		strcpy(room, "room 227 in Marks Hall");
+	}
+	else {
+		strcpy(room, "room 7XX in Pardee Tower");
+	}
+
+	while (!nameRight) {
+		printf("UPRCLSMAN: Welcome to USC, new student, what is your first name?\n\tName (with no spaces): ");
+		scanf("%s", player[id].name);
+		printf("UPRCLSMAN:  Your name is %s, is that correct?  [y/n] ", player[id].name);
+		getchar();
+		scanf("%c", &yesNo);
+		if (yesNo == 'y'){
+			nameRight = 1;
+		}
+		else {
+			printf("Oops, let's try that again\n");
+		}
+	}
+	printf("UPRCLSMAN:  Great, here are your keys to %s.  Enjoy your first day!\n\n", room);
+}
+
+void testFunc()
+{
+	loadEnemy(ENEMY_ID, 0);
+	describe(ENEMY_ID);
+	getchar();
+	initPlayer(PLAYER_ID);
+}
+	
+	
