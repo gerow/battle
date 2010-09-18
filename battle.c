@@ -15,7 +15,9 @@ struct wpn {
 };
 
 struct invtry {
-	int potions;
+	int evkFood;
+	int parksideFood;
+	int pandaFood;
 };
 
 struct plyr {
@@ -54,7 +56,7 @@ struct plyr {
 void loadEnemy(int, int);
 void slowPrint(char*, int);
 int rollD20();
-int doAttack();
+int doAttack(int, int);
 void updatePlayerData(int);
 void describe(int);
 void initPlayer(int);
@@ -75,7 +77,9 @@ void loadEnemy(int globalID, int enemyID){
 	player[globalID].typeEngineering = 0;
 	player[globalID].typeArt = 0;
 	player[globalID].typeBusiness = 0;
-	player[globalID].inventory.potions = 0;
+	player[globalID].inventory.evkFood = 0;
+	player[globalID].inventory.parksideFood = 0;
+	player[globalID].inventory.pandaFood = 0;
 	switch (enemyID) {
 		case 0: //ENEMY: BRUIN
 			strcpy(player[globalID].name, "Bruin");
@@ -90,7 +94,6 @@ void loadEnemy(int globalID, int enemyID){
 			player[globalID].weapon.modAttack = 1;
 			player[globalID].weapon.modTech = 1;
 			player[globalID].level = 1;
-			player[globalID].inventory.potions = 1;
 			break;
 		case 1:
 			//do another
@@ -118,10 +121,11 @@ int rollD20()  //Randomly roll a value between 1 and 20
 	return result;
 }
 
-int doAttack(int baseAttack)
+int doAttack(int sourceID, int targetID)
 {
 	int roll;
 	double attackModifier;
+	int damage;
 	
 	roll = rollD20();
 	if ((roll >= 5) && (roll <= 16)) {
@@ -146,7 +150,9 @@ int doAttack(int baseAttack)
 		printf("A miss!\n");
 		attackModifier = 0;
 	}
-	return (int)((double)baseAttack * attackModifier);
+	damage = (int)(((double)player[sourceID].cumAttack * attackModifier) * ((double)(100 - player[targetID].cumDefense)/100.0));
+	player[targetID].curHp -= damage;
+	return damage;
 }
 
 void slowPrint(char *characters, int interval)
@@ -174,6 +180,7 @@ void describe(enemyID)
 void doBattle(playerID, globalEnemyID, enemyID)
 {
 	int choice;
+	int damage;
 	loadEnemy(globalEnemyID, enemyID);
 	printf("A wild %s appeared!!\n\n", player[globalEnemyID].name);
 	while (!(player[playerID].curHp <= 0) && !(player[globalEnemyID].curHp <= 0)) {
@@ -181,6 +188,8 @@ void doBattle(playerID, globalEnemyID, enemyID)
 		switch (choice) {
 			case 1:
 				//ATTACK
+				damage = doAttack(playerID, globalEnemyID);
+				printf("You did %d damage!!\n", damage);
 				break;
 			case 2:
 				//TECH
@@ -282,5 +291,3 @@ int printMenu(int pid, int eid)
 	printf("\n\n");
 	return choice;
 }
-	
-	
