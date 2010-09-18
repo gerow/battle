@@ -7,6 +7,7 @@
 #define PLAYER_ID 0
 #define ENEMY_ID 1
 #define SLOWPRINT_INTERVAL 20000
+#define SLOWPRINT_THINKING 700000
 
 struct wpn {
 	char name[40];
@@ -83,16 +84,16 @@ void loadEnemy(int globalID, int enemyID){
 	switch (enemyID) {
 		case 0: //ENEMY: BRUIN
 			strcpy(player[globalID].name, "Bruin");
-			player[globalID].baseHp = 10;
+			player[globalID].baseHp = 100;
 			player[globalID].baseMp = 2;
-			player[globalID].baseTech = 4;
+			player[globalID].baseTech = 3;
 			player[globalID].baseAttack = 3;
 			player[globalID].baseDefense = 1;
 			strcpy(player[globalID].armorName, "UCLA Sweatshirt");
 			player[globalID].armorModDefense = 1;
-			strcpy(player[globalID].weapon.name, "Defeat Bell");
-			player[globalID].weapon.modAttack = 1;
-			player[globalID].weapon.modTech = 1;
+			strcpy(player[globalID].weapon.name, "fork");
+			player[globalID].weapon.modAttack = 0;
+			player[globalID].weapon.modTech = 0;
 			player[globalID].level = 1;
 			break;
 		case 1:
@@ -181,6 +182,8 @@ void doBattle(playerID, globalEnemyID, enemyID)
 {
 	int choice;
 	int damage;
+	int i;
+	char string[255];
 	loadEnemy(globalEnemyID, enemyID);
 	printf("A wild %s appeared!!\n\n", player[globalEnemyID].name);
 	while (!(player[playerID].curHp <= 0) && !(player[globalEnemyID].curHp <= 0)) {
@@ -189,7 +192,7 @@ void doBattle(playerID, globalEnemyID, enemyID)
 			case 1:
 				//ATTACK
 				damage = doAttack(playerID, globalEnemyID);
-				printf("You did %d damage!!\n", damage);
+				printf("You did %d damage!!\n\n", damage);
 				break;
 			case 2:
 				//TECH
@@ -200,11 +203,22 @@ void doBattle(playerID, globalEnemyID, enemyID)
 			case 4:
 				//DESCRIBE
 				describe(globalEnemyID);
-				break;
+				continue;
 			default:
 				printf("That is not a valid option\n\n");
 				continue;
 				//break;
+		}
+		if (!(player[playerID].curHp <= 0) && !(player[globalEnemyID].curHp <= 0)) {
+			sprintf(string, "%s is thinking", player[globalEnemyID].name);
+			slowPrint(string, SLOWPRINT_INTERVAL);
+			for (i = 0; i < 3; i++) {
+				slowPrint(".", SLOWPRINT_THINKING);
+			}
+			sprintf(string, "\n%s is attacking!\n\n", player[globalEnemyID].name);
+			slowPrint(string, SLOWPRINT_INTERVAL);
+			damage = doAttack(globalEnemyID, playerID);
+			printf("%s did %d damage!!\n", player[globalEnemyID].name, damage);
 		}
 	}
 }
@@ -243,7 +257,7 @@ void initPlayer(int id)
 	player[id].baseHp = 20;
 	player[id].baseMp = 5;
 	player[id].baseTech = 5;
-	player[id].baseAttack = 7;
+	player[id].baseAttack = 5;
 	player[id].baseDefense = 4;
 	strcpy(player[id].armorName, "USC Hoodie");
 	player[id].armorModDefense = 1;
