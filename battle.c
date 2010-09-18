@@ -59,6 +59,8 @@ void updatePlayerData(int);
 void describe(int);
 void initPlayer(int);
 void testFunc();
+void battle(int, int, int);
+int printMenu(int, int);
 
 struct plyr player[2];
 
@@ -160,15 +162,42 @@ void slowPrint(char *characters, int interval)
 
 void describe(enemyID)
 {
-	printf("You are fighting a %s.  It appears to be wearing a %s and wielding a %s.\n",
+	char stringOut[255];
+	sprintf(stringOut, "You are fighting a %s.  It appears to be wearing a %s and wielding a %s.\n",
 		   player[enemyID].name,
 		   player[enemyID].armorName,
 		   player[enemyID].weapon.name);
+	slowPrint(stringOut, SLOWPRINT_INTERVAL);
+	printf("\n\n");
 }
 
-void doBattle()
+void doBattle(playerID, globalEnemyID, enemyID)
 {
-	//BATTLE STUFF HERE!!!
+	int choice;
+	loadEnemy(globalEnemyID, enemyID);
+	printf("A wild %s appeared!!\n\n", player[globalEnemyID].name);
+	while (!(player[playerID].curHp <= 0) && !(player[globalEnemyID].curHp <= 0)) {
+		choice = printMenu(playerID, globalEnemyID);
+		switch (choice) {
+			case 1:
+				//ATTACK
+				break;
+			case 2:
+				//TECH
+				break;
+			case 3:
+				//INVENTORY
+				break;
+			case 4:
+				//DESCRIBE
+				describe(globalEnemyID);
+				break;
+			default:
+				printf("That is not a valid option\n\n");
+				continue;
+				//break;
+		}
+	}
 }
 
 void initPlayer(int id)
@@ -180,7 +209,7 @@ void initPlayer(int id)
 		strcpy(room, "room 227 in Marks Hall");
 	}
 	else {
-		strcpy(room, "room 7XX in Pardee Tower");
+		strcpy(room, "room 718 in Pardee Tower");
 	}
 
 	while (!nameRight) {
@@ -197,14 +226,61 @@ void initPlayer(int id)
 		}
 	}
 	printf("UPRCLSMAN:  Great, here are your keys to %s.  Enjoy your first day!\n\n", room);
+	
+	//LOAD UP DEFAULT.  WILL CHANGE WITH STORY LATER!!!
+	//
+	//
+	
+	player[id].baseHp = 20;
+	player[id].baseMp = 5;
+	player[id].baseTech = 5;
+	player[id].baseAttack = 7;
+	player[id].baseDefense = 4;
+	strcpy(player[id].armorName, "USC Hoodie");
+	player[id].armorModDefense = 1;
+	strcpy(player[id].weapon.name, "Fight on Fingers");
+	player[id].weapon.modAttack = 1;
+	player[id].weapon.modTech = 1;
+	player[id].typeEngineering = 0;
+	player[id].typeBusiness = 0;
+	player[id].typeArt = 0;
+	player[id].level = 1;
+	updatePlayerData(PLAYER_ID);
+	player[id].curHp = player[id].baseHp;
+	player[id].curMp = player[id].baseMp;
 }
 
 void testFunc()
 {
-	loadEnemy(ENEMY_ID, 0);
-	describe(ENEMY_ID);
-	getchar();
+	//loadEnemy(ENEMY_ID, 0);
+	//describe(ENEMY_ID);
 	initPlayer(PLAYER_ID);
+	doBattle(PLAYER_ID, ENEMY_ID, 0);
+}
+
+int printMenu(int pid, int eid)
+{
+	int choice;
+	char stringOut[255];
+	char trash[255];
+	int error;
+	sprintf(stringOut, "%s's HP: %d/%d\t\t%s's HP: %d/%d\n", player[pid].name, player[pid].curHp, player[pid].baseHp,
+		   player[eid].name, player[eid].curHp, player[eid].baseHp);
+	slowPrint(stringOut, SLOWPRINT_INTERVAL);
+	sprintf(stringOut, "%s's MP: %d/%d   \t\t%s's MP: %d/%d\n", player[pid].name, player[pid].curMp, player[pid].baseMp,
+		   player[eid].name, player[eid].curMp, player[eid].baseMp);
+	slowPrint(stringOut, SLOWPRINT_INTERVAL);
+	printf("\nSelect an option:\n");
+	printf("1.  Attack\t\t3.  Inventory\n");
+	printf("2.  Tech\t\t4.  Describe\n");
+	printf("Your choice:  ");
+	error = scanf("%d", &choice);
+	if (error != 1) {
+		scanf("%s", trash);
+		choice = 0;
+	}
+	printf("\n\n");
+	return choice;
 }
 	
 	
