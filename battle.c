@@ -3,6 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <time.h>
+#include <math.h>
 
 #define PLAYER_ID 0
 #define ENEMY_ID 1
