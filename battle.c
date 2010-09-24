@@ -599,11 +599,12 @@ void computerAttack(int computerID, int targetID)
 	int i;
 	
 	randValue = (double)rand() / (double)RAND_MAX;
-	sprintf(string, "\n%s is thinking", player[targetID].name);
+	sprintf(string, "\n%s is thinking", player[computerID].name);
 	slowPrint(string, SLOWPRINT_INTERVAL);
 	for (i = 0; i < 3; i++) {
 		slowPrint(".", SLOWPRINT_THINKING);
 	}
+	printf("\n");
 	
 	if (randValue <= chanceOfTech){
 		//do a tech
