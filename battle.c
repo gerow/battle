@@ -97,7 +97,7 @@ int mainMenu();
 void loadDefaults(int);
 void doBattle(int, int, int);
 int techMenu(int);
-void doTech(int, int, int);
+int doTech(int, int, int);
 
 struct plyr player[2];
 
@@ -243,18 +243,31 @@ int doAttack(int valueInput, int sourceID, int targetID, int effectType) //using
 	  if (effectType == 1) {
 	    returnValue = (int)(((double)valueInput * modifier) * ((double)(100 - player[targetID].cumDefense)/100.0));
 	    player[targetID].curHp -= returnValue;
+	    if (player[targetID].curHp < 0) {
+	      player[targetID].curHp = 0;
+	    }
 	  }
 	  else if (effectType == 2) {
 	    returnValue = (int)(((double)valueInput * modifier) * ((double)(100 - player[targetID].cumDefense)/100.0));
 	    player[targetID].curMp -= returnValue;
+	    if (player[targetID].curMp < 0) {
+	      player[targetID].curMp = 0;
+	    }
 	  }
 	  else if (effectType == 3) {
 	    returnValue = (int)(((double)valueInput * modifier) * ((double)(100 - player[targetID].cumDefense)/100.0));
 	    player[sourceID].curHp += returnValue;
+	    if (player[sourceID].curHp < 0) {
+	      player[sourceID].curHp = 0;
+	    }
 	  }
 	  else{
 	    returnValue = (int)(((double)valueInput * modifier) * ((double)(100 - player[targetID].cumDefense)/100.0));
 	    player[sourceID].curMp += returnValue;
+	    if (player[sourceID].curHp < 0) {
+	      player[sourceID].curHp = 0;
+	    }
+
 	  }
 	return returnValue;
 }
@@ -312,12 +325,12 @@ void doBattle(playerID, globalEnemyID, enemyID)
 					printf("No tech selected\n");
 					continue;
 				}
-				else if (player[playerID].curMp < 0) {
-				  printf("Not enough motivation!\n");
-				  continue;
-				}
 				else {
-					doTech(techChoice, playerID, globalEnemyID);
+				  if(doTech(techChoice, playerID, globalEnemyID) == 0) {
+				    printf("Not enough motivation!\n\n");
+				    continue;
+				  }
+				  else {
 
 					if (player[playerID].moveHp == 0) {
 					  break;
@@ -350,7 +363,8 @@ void doBattle(playerID, globalEnemyID, enemyID)
 					//recoveredMp = doAttack(player[playerID].moveMp, playerID, globalEnemyID, 4);
 					//printf("You recovered %d mp!!\n", recoveredMp);
 					//}
-				}				
+				  }	
+				}			
 				break;
 			case 3:
 				//INVENTORY
@@ -483,7 +497,7 @@ int doTech(techID, sourceID, targetID)
 	switch (techID) {
 		case 0:
 			printf("You broke it\n\n");
-			break;
+			return 0;
 		case 1:
 		  if (player[sourceID].curMp >= 5) {
 			sprintf(string, "%s used protractor attack!\n", player[sourceID].name);
@@ -504,11 +518,11 @@ int doTech(techID, sourceID, targetID)
 			player[sourceID].curMp -= 5;
 			return 1;
 		  }
-			//REINFORCE
-			break;
+		  else {
+		    return 0;
+		  }
 		default:
 		  return 0;
-		  break;
 	}
 }
 
