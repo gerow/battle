@@ -13,10 +13,6 @@
 #define LEN_OF_NAME 40
 #define LEN_OF_DESCRIPTION 256
 #define NUM_OF_TECHS 4
-#define DO_ATTACK_ENEMY_HP 1
-#define DO_ATTACK_ENEMY_MP 2
-#define	DO_ATTACK_SELF_HP 3
-#define DO_ATTACK_SELF_MP 4
 
 struct wpn {
 	char name[LEN_OF_NAME];
@@ -67,8 +63,8 @@ struct plyr {
 	
 	int curHp;
 	int curMp;
-	int moveHp;
-	int moveMp;
+        int moveHp;
+        int moveMp;
 	struct invtry inventory;
 	struct flg flags;
 	
@@ -85,6 +81,7 @@ void loadEnemy(int, int);
 void slowPrint(char*, int);
 int rollD20();
 int doAttack(int, int, int, int);
+void updateDefinedEnemyData(int);
 void updatePlayerData(int);
 void describe(int);
 void initPlayer(int);
@@ -102,7 +99,6 @@ void loadDefaults(int);
 void doBattle(int, int, int);
 int techMenu(int);
 int doTech(int, int, int);
-void computerAttack(int, int);
 
 struct plyr player[2];
 
@@ -118,12 +114,12 @@ int main()
 	choice = mainMenu();
 	if (choice == 1) {
 		initPlayer(PLAYER_ID);  //Load 
-		updatePlayerData(PLAYER_ID);
-		doBattle(PLAYER_ID, ENEMY_ID, 0);
+	updatePlayerData(PLAYER_ID);
+	doBattle(PLAYER_ID, ENEMY_ID, 0);
 	}
 	
 	else if (choice == 2){
-		printf("This isn't implemented yet, yay!!!\n");
+	printf("This isn't implemented yet, yay!!!\n");
 	}
 	return 0;
 }
@@ -144,7 +140,7 @@ void loadDefaults(int id)
 	player[id].level = 1;
 	player[id].exp = 0;
 	player[id].expValue = 0;
-	player[id].cumAttack = 0; //made 5 for test purposes
+	player[id].cumAttack = 0;
 	player[id].cumDefense = 0;
 	player[id].cumTech = 0;
 	player[id].expToNextLevel = 0;
@@ -152,8 +148,8 @@ void loadDefaults(int id)
 	player[id].curMp = 1;
 	player[id].flags.homework = 0;
 	player[id].flags.sickness = 0;
-	
-	
+
+
 	//Inventory Initialization
 	
 	strcpy(player[id].inventory.evkFood.name, "EVK Food");
@@ -197,13 +193,26 @@ void loadEnemy(int globalID, int enemyID)
 		default:
 			break;
 	}
+	updateDefinedEnemyData(globalID);  //Sets the cumulative attack, defense and tech to the base plus the weapon and armor mods
+}
+
+void updateDefinedEnemyData(int globalID)
+{
+  player[globalID].cumAttack = player[globalID].baseAttack + player[globalID].weapon.modAttack;
+	player[globalID].cumDefense = player[globalID].baseDefense + player[globalID].armorModDefense;
+	player[globalID].cumTech = player[globalID].baseTech + player[globalID].weapon.modTech;
 	player[globalID].curHp = player[globalID].baseHp;  //Sets the enemy's live HP to max
-	player[globalID].curMp = player[globalID].baseMp;  //Sets the enemy's live MP to max
-	updatePlayerData(globalID);  //Sets the cumulative attack, defense and tech to the base plus the weapon and armor mods
+	player[globalID].curMp = player[globalID].baseMp;
 }
 
 void updatePlayerData(int globalID)
 {
+  player[globalID].baseAttack = mathAttack(player[globalID].level);
+  player[globalID].baseTech = mathTech(player[globalID].level);
+  player[globalID].baseDefense = mathDefense(player[globalID].level);
+  player[globalID].baseHp = mathHp(player[globalID].level);
+  player[globalID].baseMp = mathMp(player[globalID].level);
+  player[globalID].expToNextLevel = mathExpCost(player[globalID].level);
 	player[globalID].cumAttack = player[globalID].baseAttack + player[globalID].weapon.modAttack;
 	player[globalID].cumDefense = player[globalID].baseDefense + player[globalID].armorModDefense;
 	player[globalID].cumTech = player[globalID].baseTech + player[globalID].weapon.modTech;
@@ -224,56 +233,56 @@ int doAttack(int valueInput, int sourceID, int targetID, int effectType) //using
 	
 	roll = rollD20();
 	if ((roll >= 5) && (roll <= 16)) {
-		//printf("A decent hit!\n");
+	  //printf("A decent hit!\n");
 		modifier = 0.9 + (((double)roll / 110.0) * 2);
 	}
 	else if ((roll >= 16) && (roll <= 19)){
-		//printf("A good hit!\n");
+	  //printf("A good hit!\n");
 		modifier = 1.3;
 	}
 	else if ((roll >= 2) && (roll <= 4)){
-		//printf("A weak hit!\n");
+	  //printf("A weak hit!\n");
 		modifier = 0.7;
 	}
 	else if (roll == 20){
-		//slowPrint("*****  SMAAAASH!!  *****\n", SLOWPRINT_INTERVAL);
+	  //slowPrint("*****  SMAAAASH!!  *****\n", SLOWPRINT_INTERVAL);
 		//printf("A critical hit!\n");
 		modifier = 2.0;
 	}
 	else if (roll == 1){
-		//printf("A miss!\n");
+	  //printf("A miss!\n");
 		modifier = 0;
 	} //error check with else
-	
-	if (effectType == 1) {
+	  
+	  if (effectType == 1) {
 	    returnValue = (int)(((double)valueInput * modifier) * ((double)(100 - player[targetID].cumDefense)/100.0));
 	    player[targetID].curHp -= returnValue;
 	    if (player[targetID].curHp < 0) {
-			player[targetID].curHp = 0;
+	      player[targetID].curHp = 0;
 	    }
-	}
-	else if (effectType == 2) {
+	  }
+	  else if (effectType == 2) {
 	    returnValue = (int)(((double)valueInput * modifier) * ((double)(100 - player[targetID].cumDefense)/100.0));
 	    player[targetID].curMp -= returnValue;
 	    if (player[targetID].curMp < 0) {
-			player[targetID].curMp = 0;
+	      player[targetID].curMp = 0;
 	    }
-	}
-	else if (effectType == 3) {
+	  }
+	  else if (effectType == 3) {
 	    returnValue = (int)(((double)valueInput * modifier) * ((double)(100 - player[targetID].cumDefense)/100.0));
 	    player[sourceID].curHp += returnValue;
 	    if (player[sourceID].curHp < 0) {
-			player[sourceID].curHp = 0;
+	      player[sourceID].curHp = 0;
 	    }
-	}
-	else{
+	  }
+	  else{
 	    returnValue = (int)(((double)valueInput * modifier) * ((double)(100 - player[targetID].cumDefense)/100.0));
 	    player[sourceID].curMp += returnValue;
 	    if (player[sourceID].curHp < 0) {
-			player[sourceID].curHp = 0;
+	      player[sourceID].curHp = 0;
 	    }
-		
-	}
+
+	  }
 	return returnValue;
 }
 
@@ -292,9 +301,9 @@ void describe(enemyID)
 {
 	char stringOut[255];
 	sprintf(stringOut, "You are fighting a %s.  It appears to be wearing a %s and wielding a %s.\n",
-			player[enemyID].name,
-			player[enemyID].armorName,
-			player[enemyID].weapon.name);
+		   player[enemyID].name,
+		   player[enemyID].armorName,
+		   player[enemyID].weapon.name);
 	slowPrint(stringOut, SLOWPRINT_INTERVAL);
 	printf("\n\n");
 }
@@ -305,6 +314,7 @@ void doBattle(playerID, globalEnemyID, enemyID)
 	int techChoice;
 	int damage, heal, recoveredMp, damageMp;
 	int i;
+	char string[LEN_OF_DESCRIPTION];
 	
 	loadEnemy(globalEnemyID, enemyID);
 	printf("A wild %s appeared!!\n\n", player[globalEnemyID].name);
@@ -321,7 +331,7 @@ void doBattle(playerID, globalEnemyID, enemyID)
 				printf("You did %d damage!!\n\n", damage);
 				break;
 			case 2:
-				techChoice = techMenu(playerID);
+				techChoice = techMenu(playerID);  //Implement error checking!!!!
 				if (techChoice == -1) {
 					continue;
 				}
@@ -330,44 +340,44 @@ void doBattle(playerID, globalEnemyID, enemyID)
 					continue;
 				}
 				else {
-					if(doTech(techChoice, playerID, globalEnemyID) == 0) {
-						printf("Not enough motivation!\n\n");
-						continue;
+				  if(doTech(techChoice, playerID, globalEnemyID) == 0) {
+				    printf("Not enough motivation!\n\n");
+				    continue;
+				  }
+				  else {
+
+					if (player[playerID].moveHp == 0) {
+					  break;
 					}
 					else {
-						
-						if (player[playerID].moveHp == 0) {
-							break;
-						}
-						else {
-							damage = doAttack(player[playerID].moveHp, playerID, globalEnemyID, 1); //calculate damage done to enemy
-							printf("You did %d damage!!\n", damage);
-						}
-						
-						if (player[playerID].moveMp == 0) {
-							break;
-						}
-						else {
-							damageMp = doAttack(player[playerID].moveMp, playerID, globalEnemyID, 2);
-							printf("%s lost %d mp!\n",player[globalEnemyID].name, damageMp);
-						}
-						
-						//if (player[playerID].moveHp == 0) {
-						// break;
-						//}
-						//else {
-						// heal = doAttack(player[playerID].moveHp, playerID, globalEnemyID, 3);
-						// printf("You healed %d hp!!\n", heal);
-						//}
-						
-						//if (player[playerID].moveMp == 0) {
-						// break;
-						//}
-						//else {
-						//recoveredMp = doAttack(player[playerID].moveMp, playerID, globalEnemyID, 4);
-						//printf("You recovered %d mp!!\n", recoveredMp);
-						//}
-					}	
+					  damage = doAttack(player[playerID].moveHp, playerID, globalEnemyID, 1); //calculate damage done to enemy
+					  printf("You did %d damage!!\n", damage);
+					}
+
+					if (player[playerID].moveMp == 0) {
+					  break;
+					}
+					else {
+					  damageMp = doAttack(player[playerID].moveMp, playerID, globalEnemyID, 2);
+					  printf("%s lost %d mp!\n",player[globalEnemyID].name, damageMp);
+					}
+
+					//if (player[playerID].moveHp == 0) {
+					// break;
+					  //}
+					//else {
+					// heal = doAttack(player[playerID].moveHp, playerID, globalEnemyID, 3);
+					// printf("You healed %d hp!!\n", heal);
+					  //}
+					
+					//if (player[playerID].moveMp == 0) {
+					// break;
+					//}
+					//else {
+					//recoveredMp = doAttack(player[playerID].moveMp, playerID, globalEnemyID, 4);
+					//printf("You recovered %d mp!!\n", recoveredMp);
+					//}
+				  }	
 				}			
 				break;
 			case 3:
@@ -383,16 +393,15 @@ void doBattle(playerID, globalEnemyID, enemyID)
 				//break;
 		}
 		if (!(player[playerID].curHp <= 0) && !(player[globalEnemyID].curHp <= 0)) {
-			//sprintf(string, "\n%s is thinking", player[globalEnemyID].name);
-			//slowPrint(string, SLOWPRINT_INTERVAL);
-			//for (i = 0; i < 3; i++) {
-			//	slowPrint(".", SLOWPRINT_THINKING);
-			//}
-			//sprintf(string, "\n%s is attacking!\n\n", player[globalEnemyID].name);
-			//slowPrint(string, SLOWPRINT_INTERVAL);
-			//damage = doAttack(player[globalEnemyID].cumAttack, globalEnemyID, playerID, DO_ATTACK_ENEMY_HP);
-			//printf("%s did %d damage!!\n\n", player[globalEnemyID].name, damage);
-			computerAttack(globalEnemyID, playerID);
+			sprintf(string, "\n%s is thinking", player[globalEnemyID].name);
+			slowPrint(string, SLOWPRINT_INTERVAL);
+			for (i = 0; i < 3; i++) {
+				slowPrint(".", SLOWPRINT_THINKING);
+			}
+			sprintf(string, "\n%s is attacking!\n\n", player[globalEnemyID].name);
+			slowPrint(string, SLOWPRINT_INTERVAL);
+			damage = doAttack(player[globalEnemyID].cumAttack, globalEnemyID, playerID, 1);
+			printf("%s did %d damage!!\n\n", player[globalEnemyID].name, damage);
 		}
 	}
 }
@@ -408,7 +417,7 @@ void initPlayer(int id)
 	else {
 		strcpy(room, "room 718 in Pardee Tower");
 	}
-	
+
 	while (!nameRight) {
 		printf("UPRCLSMAN: Welcome to USC, new student, what is your first name?\n\tName (with no spaces): ");
 		scanf("%40s", player[id].name);
@@ -428,11 +437,7 @@ void initPlayer(int id)
 	//
 	//
 	
-	player[id].baseHp = 20;
-	player[id].baseMp = 5;
-	player[id].baseTech = 5;
-	player[id].baseAttack = 5;
-	player[id].baseDefense = 4;
+	player[id].level = 1;
 	strcpy(player[id].armorName, "USC Hoodie");
 	player[id].armorModDefense = 1;
 	strcpy(player[id].weapon.name, "Fight on Fingers");
@@ -441,7 +446,6 @@ void initPlayer(int id)
 	player[id].typeEngineering = 0;
 	player[id].typeBusiness = 0;
 	player[id].typeArt = 0;
-	player[id].level = 1;
 	player[id].exp = 0;
 	updatePlayerData(PLAYER_ID);
 	player[id].curHp = player[id].baseHp;
@@ -458,11 +462,11 @@ int printMenu(int pid, int eid)
 	char stringOut[LEN_OF_DESCRIPTION];
 	char trash[LEN_OF_DESCRIPTION];
 	int error;
-	sprintf(stringOut, "%s's HP: %d/%d\t\t%s's HP: %d/%d\n", player[pid].name, player[pid].curHp, player[pid].baseHp,
-			player[eid].name, player[eid].curHp, player[eid].baseHp);
+	sprintf(stringOut, "%s's HP: %d/%d   \t\t%s's HP: %d/%d\n", player[pid].name, player[pid].curHp, player[pid].baseHp,
+		   player[eid].name, player[eid].curHp, player[eid].baseHp);
 	slowPrint(stringOut, SLOWPRINT_INTERVAL);
 	sprintf(stringOut, "%s's MP: %d/%d   \t\t%s's MP: %d/%d\n", player[pid].name, player[pid].curMp, player[pid].baseMp,
-			player[eid].name, player[eid].curMp, player[eid].baseMp);
+		   player[eid].name, player[eid].curMp, player[eid].baseMp);
 	slowPrint(stringOut, SLOWPRINT_INTERVAL);
 	printf("\nSelect an option:\n");
 	printf("1.  Attack\t\t3.  Inventory\n");
@@ -493,7 +497,7 @@ int gameOver()
 	else {
 		return 0;
 	}
-	
+
 }
 
 int doTech(techID, sourceID, targetID)
@@ -503,33 +507,31 @@ int doTech(techID, sourceID, targetID)
 		case 0:
 			printf("You broke it\n\n");
 			return 0;
-		case 1: //Protractor attack (COST = 5)
-			if (player[sourceID].curMp >= 5) {
-				sprintf(string, "%s used protractor attack!\n", player[sourceID].name);
+		case 1:
+		  if (player[sourceID].curMp >= 5) {
+			sprintf(string, "%s used protractor attack!\n", player[sourceID].name);
 		        slowPrint(string, SLOWPRINT_INTERVAL);
-				player[sourceID].moveHp = 5;
-				player[sourceID].moveMp = 5;
-				player[sourceID].curMp -= 5;
-				return 1;
-			}
-			else {
-				return 0;
-			}
-			 
-		case 2: //Reinforce (COST = 5)
-			if(player[sourceID].curMp > 5) {
-		        sprintf(string, "%s used reinforce!\n", player[sourceID].name);
-				slowPrint(string, SLOWPRINT_INTERVAL);
-				player[sourceID].curMp -= 5;
-				return 1;
-			}
-			else {
-				return 0;
-			}
-		case 3:
+			player[sourceID].moveHp = 5;
+			player[sourceID].moveMp = 5;
+			player[sourceID].curMp -= 5;
+			return 1;
+		  }
+		  else {
+		    return 0;
+		  }
 			
+		case 2:
+		  if(player[sourceID].curMp > 5) {
+		        sprintf(string, "%s used reinforce!\n", player[sourceID].name);
+			slowPrint(string, SLOWPRINT_INTERVAL);
+			player[sourceID].curMp -= 5;
+			return 1;
+		  }
+		  else {
+		    return 0;
+		  }
 		default:
-			return 0;
+		  return 0;
 	}
 }
 
@@ -586,40 +588,6 @@ int techMenu(int id)
 		return 0;
 	}
 	return player[id].tech[choice - 1];
-}
-
-void computerAttack(int computerID, int targetID)
-{
-	double randValue;
-	double chanceOfTech = 0.3;
-	double chanceOfItem = 0.1;
-	double chanceOfAttack = 0.6;
-	int damage;
-	char string[LEN_OF_DESCRIPTION];
-	int i;
-	
-	randValue = (double)rand() / (double)RAND_MAX;
-	sprintf(string, "\n%s is thinking", player[targetID].name);
-	slowPrint(string, SLOWPRINT_INTERVAL);
-	for (i = 0; i < 3; i++) {
-		slowPrint(".", SLOWPRINT_THINKING);
-	}
-	
-	if (randValue <= chanceOfTech){
-		//do a tech
-		printf("Tech unimplemented\n");
-	}
-	else if (randValue <= (chanceOfTech + chanceOfItem)){
-		//use an item
-		printf("Item unimplemented\n");
-	}
-	else {
-		//do an attack
-		printf("%s is attacking!!!\n", player[computerID].name);
-		damage = doAttack(player[computerID].cumAttack, computerID, targetID, DO_ATTACK_ENEMY_HP);
-		printf("%s did %d damage!!!\n", player[computerID].name, damage);
-	}
-
 }
 
 int mathAttack(int x)
