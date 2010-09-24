@@ -103,6 +103,7 @@ void loadDefaults(int);
 void doBattle(int, int, int);
 int techMenu(int);
 int doTech(int, int, int);
+void computerAttack(int, int);
 
 struct plyr player[2];
 
@@ -316,9 +317,10 @@ void doBattle(playerID, globalEnemyID, enemyID)
 {
 	int choice;
 	int techChoice;
-	int damage, heal, recoveredMp, damageMp;
-	int i;
-	char string[LEN_OF_DESCRIPTION];
+	int damage, damageMp;
+	//int recoveredMp, heal;
+	//int i;
+	//char string[LEN_OF_DESCRIPTION];
 	
 	loadEnemy(globalEnemyID, enemyID);
 	printf("A wild %s appeared!!\n\n", player[globalEnemyID].name);
@@ -591,7 +593,7 @@ void computerAttack(int computerID, int targetID)
 	double randValue;
 	double chanceOfTech = 0.3;
 	double chanceOfItem = 0.1;
-	double chanceOfAttack = 0.6;
+	//double chanceOfAttack = 0.6;
 	int damage;
 	char string[LEN_OF_DESCRIPTION];
 	int i;
