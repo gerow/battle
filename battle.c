@@ -118,7 +118,7 @@ int main()
 	}
 	
 	else if (choice == 2){
-	printf("This isn't implemented yet, yay!!!\n");
+		printf("This isn't implemented yet, yay!!!\n");
 	}
 	return 0;
 }
