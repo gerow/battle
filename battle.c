@@ -13,6 +13,10 @@
 #define LEN_OF_NAME 40
 #define LEN_OF_DESCRIPTION 256
 #define NUM_OF_TECHS 4
+#define DO_ATTACK_ENEMY_HP 1
+#define DO_ATTACK_ENEMY_MP 2
+#define DO_ATTACK_PLAYER_HP 3
+#define DO_ATTACK_PLAYER_MP 4
 
 struct wpn {
 	char name[LEN_OF_NAME];
