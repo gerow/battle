@@ -81,6 +81,7 @@ void loadEnemy(int, int);
 void slowPrint(char*, int);
 int rollD20();
 int doAttack(int, int, int, int);
+void updateDefinedEnemyData(int);
 void updatePlayerData(int);
 void describe(int);
 void initPlayer(int);
@@ -139,7 +140,7 @@ void loadDefaults(int id)
 	player[id].level = 1;
 	player[id].exp = 0;
 	player[id].expValue = 0;
-	player[id].cumAttack = 0; //made 5 for test purposes
+	player[id].cumAttack = 0;
 	player[id].cumDefense = 0;
 	player[id].cumTech = 0;
 	player[id].expToNextLevel = 0;
@@ -192,13 +193,26 @@ void loadEnemy(int globalID, int enemyID)
 		default:
 			break;
 	}
+	updateDefinedEnemyData(globalID);  //Sets the cumulative attack, defense and tech to the base plus the weapon and armor mods
+}
+
+void updateDefinedEnemyData(int globalID)
+{
+  player[globalID].cumAttack = player[globalID].baseAttack + player[globalID].weapon.modAttack;
+	player[globalID].cumDefense = player[globalID].baseDefense + player[globalID].armorModDefense;
+	player[globalID].cumTech = player[globalID].baseTech + player[globalID].weapon.modTech;
 	player[globalID].curHp = player[globalID].baseHp;  //Sets the enemy's live HP to max
-	player[globalID].curMp = player[globalID].baseMp;  //Sets the enemy's live MP to max
-	updatePlayerData(globalID);  //Sets the cumulative attack, defense and tech to the base plus the weapon and armor mods
+	player[globalID].curMp = player[globalID].baseMp;
 }
 
 void updatePlayerData(int globalID)
 {
+  player[globalID].baseAttack = mathAttack(player[globalID].level);
+  player[globalID].baseTech = mathTech(player[globalID].level);
+  player[globalID].baseDefense = mathDefense(player[globalID].level);
+  player[globalID].baseHp = mathHp(player[globalID].level);
+  player[globalID].baseMp = mathMp(player[globalID].level);
+  player[globalID].expToNextLevel = mathExpCost(player[globalID].level);
 	player[globalID].cumAttack = player[globalID].baseAttack + player[globalID].weapon.modAttack;
 	player[globalID].cumDefense = player[globalID].baseDefense + player[globalID].armorModDefense;
 	player[globalID].cumTech = player[globalID].baseTech + player[globalID].weapon.modTech;
@@ -423,11 +437,7 @@ void initPlayer(int id)
 	//
 	//
 	
-	player[id].baseHp = 20;
-	player[id].baseMp = 5;
-	player[id].baseTech = 5;
-	player[id].baseAttack = 5;
-	player[id].baseDefense = 4;
+	player[id].level = 1;
 	strcpy(player[id].armorName, "USC Hoodie");
 	player[id].armorModDefense = 1;
 	strcpy(player[id].weapon.name, "Fight on Fingers");
@@ -436,7 +446,6 @@ void initPlayer(int id)
 	player[id].typeEngineering = 0;
 	player[id].typeBusiness = 0;
 	player[id].typeArt = 0;
-	player[id].level = 1;
 	player[id].exp = 0;
 	updatePlayerData(PLAYER_ID);
 	player[id].curHp = player[id].baseHp;
@@ -453,7 +462,7 @@ int printMenu(int pid, int eid)
 	char stringOut[LEN_OF_DESCRIPTION];
 	char trash[LEN_OF_DESCRIPTION];
 	int error;
-	sprintf(stringOut, "%s's HP: %d/%d\t\t%s's HP: %d/%d\n", player[pid].name, player[pid].curHp, player[pid].baseHp,
+	sprintf(stringOut, "%s's HP: %d/%d   \t\t%s's HP: %d/%d\n", player[pid].name, player[pid].curHp, player[pid].baseHp,
 		   player[eid].name, player[eid].curHp, player[eid].baseHp);
 	slowPrint(stringOut, SLOWPRINT_INTERVAL);
 	sprintf(stringOut, "%s's MP: %d/%d   \t\t%s's MP: %d/%d\n", player[pid].name, player[pid].curMp, player[pid].baseMp,
