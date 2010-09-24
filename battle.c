@@ -586,6 +586,40 @@ int techMenu(int id)
 	return player[id].tech[choice - 1];
 }
 
+void computerAttack(int computerID, int targetID)
+{
+	double randValue;
+	double chanceOfTech = 0.3;
+	double chanceOfItem = 0.1;
+	double chanceOfAttack = 0.6;
+	int damage;
+	char string[LEN_OF_DESCRIPTION];
+	int i;
+	
+	randValue = (double)rand() / (double)RAND_MAX;
+	sprintf(string, "\n%s is thinking", player[targetID].name);
+	slowPrint(string, SLOWPRINT_INTERVAL);
+	for (i = 0; i < 3; i++) {
+		slowPrint(".", SLOWPRINT_THINKING);
+	}
+	
+	if (randValue <= chanceOfTech){
+		//do a tech
+		printf("Tech unimplemented\n");
+	}
+	else if (randValue <= (chanceOfTech + chanceOfItem)){
+		//use an item
+		printf("Item unimplemented\n");
+	}
+	else {
+		//do an attack
+		printf("%s is attacking!!!\n", player[computerID].name);
+		damage = doAttack(player[computerID].cumAttack, computerID, targetID, DO_ATTACK_ENEMY_HP);
+		printf("%s did %d damage!!!\n", player[computerID].name, damage);
+	}
+	
+}
+
 int mathAttack(int x)
 {
 	return 2 * (x) + 7;
