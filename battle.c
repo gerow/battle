@@ -393,15 +393,7 @@ void doBattle(playerID, globalEnemyID, enemyID)
 				//break;
 		}
 		if (!(player[playerID].curHp <= 0) && !(player[globalEnemyID].curHp <= 0)) {
-			sprintf(string, "\n%s is thinking", player[globalEnemyID].name);
-			slowPrint(string, SLOWPRINT_INTERVAL);
-			for (i = 0; i < 3; i++) {
-				slowPrint(".", SLOWPRINT_THINKING);
-			}
-			sprintf(string, "\n%s is attacking!\n\n", player[globalEnemyID].name);
-			slowPrint(string, SLOWPRINT_INTERVAL);
-			damage = doAttack(player[globalEnemyID].cumAttack, globalEnemyID, playerID, 1);
-			printf("%s did %d damage!!\n\n", player[globalEnemyID].name, damage);
+			computerAttack(globalEnemyID, playerID);
 		}
 	}
 }
