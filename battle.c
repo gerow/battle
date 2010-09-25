@@ -63,10 +63,10 @@ struct plyr {
 	
 	int curHp;
 	int curMp;
-        int moveHp;
-        int moveMp;
+	int moveHp;
+	int moveMp;
 	struct invtry inventory;
-        int status[NUM_OF_STATUS_AILMENTS];
+	int status[NUM_OF_STATUS_AILMENTS];
 	
 	//Circle of weaknesses
 	
@@ -115,19 +115,19 @@ int main()
 	choice = mainMenu();
 	if (choice == 1) {
 		initPlayer(PLAYER_ID);  //Load 
-	updatePlayerData(PLAYER_ID);
-	doBattle(PLAYER_ID, ENEMY_ID, 0);
+		updatePlayerData(PLAYER_ID);
+		doBattle(PLAYER_ID, ENEMY_ID, 0);
 	}
 	
 	else if (choice == 2){
-	printf("This isn't implemented yet, yay!!!\n");
+		printf("This isn't implemented yet, yay!!!\n");
 	}
 	return 0;
 }
 
 void loadDefaults(int id)
 {
-        int i;
+	int i;
 	strcpy(player[id].name, "defaultName");
 	player[id].baseHp = 1;
 	player[id].baseMp = 1;
@@ -148,10 +148,10 @@ void loadDefaults(int id)
 	player[id].expToNextLevel = 0;
 	player[id].curHp = 1;
 	player[id].curMp = 1;
-        for (i = 0;i < NUM_OF_STATUS_AILMENTS;i++){
-	        player[id].status[i] = 0;
+	for (i = 0;i < NUM_OF_STATUS_AILMENTS;i++){
+		player[id].status[i] = 0;
 	}
-
+	
 	//Inventory Initialization
 	
 	strcpy(player[id].inventory.evkFood.name, "EVK Food");
@@ -200,7 +200,7 @@ void loadEnemy(int globalID, int enemyID)
 
 void updateDefinedEnemyData(int globalID)
 {
-  player[globalID].cumAttack = player[globalID].baseAttack + player[globalID].weapon.modAttack;
+	player[globalID].cumAttack = player[globalID].baseAttack + player[globalID].weapon.modAttack;
 	player[globalID].cumDefense = player[globalID].baseDefense + player[globalID].armorModDefense;
 	player[globalID].cumTech = player[globalID].baseTech + player[globalID].weapon.modTech;
 	player[globalID].curHp = player[globalID].baseHp;  //Sets the enemy's live HP to max
@@ -209,12 +209,12 @@ void updateDefinedEnemyData(int globalID)
 
 void updatePlayerData(int globalID)
 {
-  player[globalID].baseAttack = mathAttack(player[globalID].level);
-  player[globalID].baseTech = mathTech(player[globalID].level);
-  player[globalID].baseDefense = mathDefense(player[globalID].level);
-  player[globalID].baseHp = mathHp(player[globalID].level);
-  player[globalID].baseMp = mathMp(player[globalID].level);
-  player[globalID].expToNextLevel = mathExpCost(player[globalID].level);
+	player[globalID].baseAttack = mathAttack(player[globalID].level);
+	player[globalID].baseTech = mathTech(player[globalID].level);
+	player[globalID].baseDefense = mathDefense(player[globalID].level);
+	player[globalID].baseHp = mathHp(player[globalID].level);
+	player[globalID].baseMp = mathMp(player[globalID].level);
+	player[globalID].expToNextLevel = mathExpCost(player[globalID].level);
 	player[globalID].cumAttack = player[globalID].baseAttack + player[globalID].weapon.modAttack;
 	player[globalID].cumDefense = player[globalID].baseDefense + player[globalID].armorModDefense;
 	player[globalID].cumTech = player[globalID].baseTech + player[globalID].weapon.modTech;
@@ -235,134 +235,134 @@ int doAttack(int valueInput, int sourceID, int targetID, int effectType) //using
 	
 	roll = rollD20();
 	if ((roll >= 5) && (roll <= 16)) {
-	  //printf("A decent hit!\n");
+		//printf("A decent hit!\n");
 		modifier = 0.9 + (((double)roll / 110.0) * 2);
 	}
 	else if ((roll >= 16) && (roll <= 19)){
-	  //printf("A good hit!\n");
+		//printf("A good hit!\n");
 		modifier = 1.3;
 	}
 	else if ((roll >= 2) && (roll <= 4)){
-	  //printf("A weak hit!\n");
+		//printf("A weak hit!\n");
 		modifier = 0.7;
 	}
 	else if (roll == 20){
-	  //slowPrint("*****  SMAAAASH!!  *****\n", SLOWPRINT_INTERVAL);
+		//slowPrint("*****  SMAAAASH!!  *****\n", SLOWPRINT_INTERVAL);
 		//printf("A critical hit!\n");
 		modifier = 2.0;
 	}
 	else if (roll == 1){
-	  //printf("A miss!\n");
+		//printf("A miss!\n");
 		modifier = 0;
 	} //error check with else
-	  
-	  if (effectType == 1) {
+	
+	if (effectType == 1) {
 	    returnValue = (int)(((double)valueInput * modifier) * ((double)(100 - player[targetID].cumDefense)/100.0));
 	    player[targetID].curHp -= returnValue;
 	    if (player[targetID].curHp < 0) {
-	      player[targetID].curHp = 0;
+			player[targetID].curHp = 0;
 	    }
-	  }
-	  else if (effectType == 2) {
+	}
+	else if (effectType == 2) {
 	    returnValue = (int)(((double)valueInput * modifier) * ((double)(100 - player[targetID].cumDefense)/100.0));
 	    player[targetID].curMp -= returnValue;
 	    if (player[targetID].curMp < 0) {
-	      player[targetID].curMp = 0;
+			player[targetID].curMp = 0;
 	    }
-	  }
-	  else if (effectType == 3) {
+	}
+	else if (effectType == 3) {
 	    returnValue = (int)(((double)valueInput * modifier) * ((double)(100 - player[targetID].cumDefense)/100.0));
 	    player[sourceID].curHp += returnValue;
 	    if (player[sourceID].curHp < 0) {
-	      player[sourceID].curHp = 0;
+			player[sourceID].curHp = 0;
 	    }
-	  }
-	  else{
+	}
+	else{
 	    returnValue = (int)(((double)valueInput * modifier) * ((double)(100 - player[targetID].cumDefense)/100.0));
 	    player[sourceID].curMp += returnValue;
 	    if (player[sourceID].curHp < 0) {
-	      player[sourceID].curHp = 0;
+			player[sourceID].curHp = 0;
 	    }
-
-	  }
+		
+	}
 	return returnValue;
 }
 
 void statusEffect(int globalID)
 {
-  int i, dispel;
-  char string[255];
-
-  for (i = 0; i < NUM_OF_STATUS_AILMENTS; i++) {
-    dispel = rand()%10;
-    switch(player[globalID].status[i]) {
-    case 0:
-      continue;
-    case 1:
-      if (dispel < 0.3) {
-        player[globalID].status[i] =0;
-        sprintf(string, "%s is no longer doing homework!\n", player[globalID].name);
-        slowPrint(string, SLOWPRINT_INTERVAL);
-        continue;
-      }
-      case 2:
-      if (dispel < 0.4) {
-        player[globalID].status[i] =0;
-        sprintf(string, "%s woke up!\n", player[globalID].name);
-        slowPrint(string, SLOWPRINT_INTERVAL);
-        continue;
-      }
-      case 3:
-      if (dispel < 0.2) {
-        player[globalID].status[i] =0;
-        sprintf(string, "%s is no longer poisoned!\n", player[globalID].name);
-        slowPrint(string, SLOWPRINT_INTERVAL);
-        continue;
-      }
-    default:
-      continue;
-    }
-  }
+	int i, dispel;
+	char string[255];
+	
+	for (i = 0; i < NUM_OF_STATUS_AILMENTS; i++) {
+		dispel = rand()%10;
+		switch(player[globalID].status[i]) {
+			case 0:
+				continue;
+			case 1:
+				if (dispel < 0.3) {
+					player[globalID].status[i] =0;
+					sprintf(string, "%s is no longer doing homework!\n", player[globalID].name);
+					slowPrint(string, SLOWPRINT_INTERVAL);
+					continue;
+				}
+			case 2:
+				if (dispel < 0.4) {
+					player[globalID].status[i] =0;
+					sprintf(string, "%s woke up!\n", player[globalID].name);
+					slowPrint(string, SLOWPRINT_INTERVAL);
+					continue;
+				}
+			case 3:
+				if (dispel < 0.2) {
+					player[globalID].status[i] =0;
+					sprintf(string, "%s is no longer poisoned!\n", player[globalID].name);
+					slowPrint(string, SLOWPRINT_INTERVAL);
+					continue;
+				}
+			default:
+				continue;
+		}
+	}
     for(i = 0; i < NUM_OF_STATUS_AILMENTS; i++) {
-  switch (player[globalID].status[i]) {
-  case 0:
-    continue;
-  case 1:
-    sprintf(string, "%s is doing homework!\n%s is losing motivation!\n\n", player[globalID].name, player[globalID].name);
-    slowPrint(string, SLOWPRINT_INTERVAL);
-    player[globalID].curMp --;
-    continue;
-  case 2:
-    sprintf(string, "%s is asleep!\n%s cannot attack!!\n\n", player[globalID].name, player[globalID].name);
-    slowPrint(string, SLOWPRINT_INTERVAL);
-    continue;
-  case 3:
-    sprintf(string, "%s is poisoned!\n%s is losing hp!\n\n", player[globalID].name, player[globalID].name);
-    slowPrint(string, SLOWPRINT_INTERVAL);
-    player[globalID].curHp --;
-    continue;
-  }
- }
+		switch (player[globalID].status[i]) {
+			case 0:
+				continue;
+			case 1:
+				sprintf(string, "%s is doing homework!\n%s is losing motivation!\n\n", player[globalID].name, player[globalID].name);
+				slowPrint(string, SLOWPRINT_INTERVAL);
+				player[globalID].curMp --;
+				continue;
+			case 2:
+				sprintf(string, "%s is asleep!\n%s cannot attack!!\n\n", player[globalID].name, player[globalID].name);
+				slowPrint(string, SLOWPRINT_INTERVAL);
+				continue;
+			case 3:
+				sprintf(string, "%s is poisoned!\n%s is losing hp!\n\n", player[globalID].name, player[globalID].name);
+				slowPrint(string, SLOWPRINT_INTERVAL);
+				player[globalID].curHp --;
+				continue;
+		}
+	}
 }
 
 
 void getStatusName(int statusId, char * string)
 {
-  switch (statusId) {
-    case 0:
-      break;
-    case 1:
-      strcpy(string, "homework");
-      break;
-  case 2:
-    strcpy(string, "sleep");
-    break;
-  case 3:
-    strcpy(string, "posion");
-    break;
-  default:
-    break;
-  }
+	switch (statusId) {
+		case 0:
+			break;
+		case 1:
+			strcpy(string, "homework");
+			break;
+		case 2:
+			strcpy(string, "sleep");
+			break;
+		case 3:
+			strcpy(string, "posion");
+			break;
+		default:
+			break;
+	}
 }
 
 void slowPrint(char *characters, int interval)
@@ -380,9 +380,9 @@ void describe(enemyID)
 {
 	char stringOut[255];
 	sprintf(stringOut, "You are fighting a %s.  It appears to be wearing a %s and wielding a %s.\n",
-		   player[enemyID].name,
-		   player[enemyID].armorName,
-		   player[enemyID].weapon.name);
+			player[enemyID].name,
+			player[enemyID].armorName,
+			player[enemyID].weapon.name);
 	slowPrint(stringOut, SLOWPRINT_INTERVAL);
 	printf("\n\n");
 }
@@ -420,44 +420,44 @@ void doBattle(playerID, globalEnemyID, enemyID)
 					continue;
 				}
 				else {
-				  if(doTech(techChoice, playerID, globalEnemyID) == 0) {
-				    printf("Not enough motivation!\n\n");
-				    continue;
-				  }
-				  else {
-
-					if (player[playerID].moveHp == 0) {
-					  break;
+					if(doTech(techChoice, playerID, globalEnemyID) == 0) {
+						printf("Not enough motivation!\n\n");
+						continue;
 					}
 					else {
-					  damage = doAttack(player[playerID].moveHp, playerID, globalEnemyID, 1); //calculate damage done to enemy
-					  printf("You did %d damage!!\n", damage);
-					}
-
-					if (player[playerID].moveMp == 0) {
-					  break;
-					}
-					else {
-					  damageMp = doAttack(player[playerID].moveMp, playerID, globalEnemyID, 2);
-					  printf("%s lost %d mp!\n",player[globalEnemyID].name, damageMp);
-					}
-
-					//if (player[playerID].moveHp == 0) {
-					// break;
-					  //}
-					//else {
-					// heal = doAttack(player[playerID].moveHp, playerID, globalEnemyID, 3);
-					// printf("You healed %d hp!!\n", heal);
-					  //}
-					
-					//if (player[playerID].moveMp == 0) {
-					// break;
-					//}
-					//else {
-					//recoveredMp = doAttack(player[playerID].moveMp, playerID, globalEnemyID, 4);
-					//printf("You recovered %d mp!!\n", recoveredMp);
-					//}
-				  }	
+						
+						if (player[playerID].moveHp == 0) {
+							break;
+						}
+						else {
+							damage = doAttack(player[playerID].moveHp, playerID, globalEnemyID, 1); //calculate damage done to enemy
+							printf("You did %d damage!!\n", damage);
+						}
+						
+						if (player[playerID].moveMp == 0) {
+							break;
+						}
+						else {
+							damageMp = doAttack(player[playerID].moveMp, playerID, globalEnemyID, 2);
+							printf("%s lost %d mp!\n",player[globalEnemyID].name, damageMp);
+						}
+						
+						//if (player[playerID].moveHp == 0) {
+						// break;
+						//}
+						//else {
+						// heal = doAttack(player[playerID].moveHp, playerID, globalEnemyID, 3);
+						// printf("You healed %d hp!!\n", heal);
+						//}
+						
+						//if (player[playerID].moveMp == 0) {
+						// break;
+						//}
+						//else {
+						//recoveredMp = doAttack(player[playerID].moveMp, playerID, globalEnemyID, 4);
+						//printf("You recovered %d mp!!\n", recoveredMp);
+						//}
+					}	
 				}			
 				break;
 			case 3:
@@ -489,7 +489,7 @@ void initPlayer(int id)
 	else {
 		strcpy(room, "room 718 in Pardee Tower");
 	}
-
+	
 	while (!nameRight) {
 		printf("UPRCLSMAN: Welcome to USC, new student, what is your first name?\n\tName (with no spaces): ");
 		scanf("%40s", player[id].name);
@@ -535,10 +535,10 @@ int printMenu(int pid, int eid)
 	char trash[LEN_OF_DESCRIPTION];
 	int error;
 	sprintf(stringOut, "%s's HP: %d/%d   \t\t%s's HP: %d/%d\n", player[pid].name, player[pid].curHp, player[pid].baseHp,
-		   player[eid].name, player[eid].curHp, player[eid].baseHp);
+			player[eid].name, player[eid].curHp, player[eid].baseHp);
 	slowPrint(stringOut, SLOWPRINT_INTERVAL);
 	sprintf(stringOut, "%s's MP: %d/%d   \t\t%s's MP: %d/%d\n", player[pid].name, player[pid].curMp, player[pid].baseMp,
-		   player[eid].name, player[eid].curMp, player[eid].baseMp);
+			player[eid].name, player[eid].curMp, player[eid].baseMp);
 	slowPrint(stringOut, SLOWPRINT_INTERVAL);
 	printf("\nSelect an option:\n");
 	printf("1.  Attack\t\t3.  Inventory\n");
@@ -569,7 +569,7 @@ int gameOver()
 	else {
 		return 0;
 	}
-
+	
 }
 
 int doTech(techID, sourceID, targetID)
@@ -580,30 +580,30 @@ int doTech(techID, sourceID, targetID)
 			printf("You broke it\n\n");
 			return 0;
 		case 1:
-		  if (player[sourceID].curMp >= 5) {
-			sprintf(string, "%s used protractor attack!\n", player[sourceID].name);
+			if (player[sourceID].curMp >= 5) {
+				sprintf(string, "%s used protractor attack!\n", player[sourceID].name);
 		        slowPrint(string, SLOWPRINT_INTERVAL);
-			player[sourceID].moveHp = 5;
-			player[sourceID].moveMp = 5;
-			player[sourceID].curMp -= 5;
-			return 1;
-		  }
-		  else {
-		    return 0;
-		  }
+				player[sourceID].moveHp = 5;
+				player[sourceID].moveMp = 5;
+				player[sourceID].curMp -= 5;
+				return 1;
+			}
+			else {
+				return 0;
+			}
 			
 		case 2:
-		  if(player[sourceID].curMp > 5) {
+			if(player[sourceID].curMp > 5) {
 		        sprintf(string, "%s used reinforce!\n", player[sourceID].name);
-			slowPrint(string, SLOWPRINT_INTERVAL);
-			player[sourceID].curMp -= 5;
-			return 1;
-		  }
-		  else {
-		    return 0;
-		  }
+				slowPrint(string, SLOWPRINT_INTERVAL);
+				player[sourceID].curMp -= 5;
+				return 1;
+			}
+			else {
+				return 0;
+			}
 		default:
-		  return 0;
+			return 0;
 	}
 }
 
