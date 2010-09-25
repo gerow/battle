@@ -17,6 +17,7 @@
 #define DO_ATTACK_ENEMY_MP 2
 #define DO_ATTACK_PLAYER_HP 3
 #define DO_ATTACK_PLAYER_MP 4
+#define NUM_OF_STATUS_AILMENTS 3
 
 struct wpn {
 	char name[LEN_OF_NAME];
@@ -34,11 +35,6 @@ struct invtry {
 	struct itm evkFood;
 	struct itm parksideFood;
 	struct itm pandaFood;
-};
-
-struct flg {
-	int homework;
-	int sickness;
 };
 
 struct plyr {
@@ -70,7 +66,7 @@ struct plyr {
         int moveHp;
         int moveMp;
 	struct invtry inventory;
-	struct flg flags;
+        int status[NUM_OF_STATUS_AILMENTS];
 	
 	//Circle of weaknesses
 	
@@ -131,6 +127,7 @@ int main()
 
 void loadDefaults(int id)
 {
+        int i;
 	strcpy(player[id].name, "defaultName");
 	player[id].baseHp = 1;
 	player[id].baseMp = 1;
@@ -151,9 +148,9 @@ void loadDefaults(int id)
 	player[id].expToNextLevel = 0;
 	player[id].curHp = 1;
 	player[id].curMp = 1;
-	player[id].flags.homework = 0;
-	player[id].flags.sickness = 0;
-
+        for (i = 0;i < NUM_OF_STATUS_AILMENTS;i++){
+	        player[id].status[i] = 0;
+	}
 
 	//Inventory Initialization
 	
@@ -289,6 +286,83 @@ int doAttack(int valueInput, int sourceID, int targetID, int effectType) //using
 
 	  }
 	return returnValue;
+}
+
+void statusEffect(int globalID)
+{
+  int i, dispel;
+  char string[255];
+
+  for (i = 0; i < NUM_OF_STATUS_AILMENTS; i++) {
+    dispel = rand()%10;
+    switch(player[globalID].status[i]) {
+    case 0:
+      continue;
+    case 1:
+      if (dispel < 0.3) {
+        player[globalID].status[i] =0;
+        sprintf(string, "%s is no longer doing homework!\n", player[globalID].name);
+        slowPrint(string, SLOWPRINT_INTERVAL);
+        continue;
+      }
+      case 2:
+      if (dispel < 0.4) {
+        player[globalID].status[i] =0;
+        sprintf(string, "%s woke up!\n", player[globalID].name);
+        slowPrint(string, SLOWPRINT_INTERVAL);
+        continue;
+      }
+      case 3:
+      if (dispel < 0.2) {
+        player[globalID].status[i] =0;
+        sprintf(string, "%s is no longer poisoned!\n", player[globalID].name);
+        slowPrint(string, SLOWPRINT_INTERVAL);
+        continue;
+      }
+    default:
+      continue;
+    }
+  }
+    for(i = 0; i < NUM_OF_STATUS_AILMENTS; i++) {
+  switch (player[globalID].status[i]) {
+  case 0:
+    continue;
+  case 1:
+    sprintf(string, "%s is doing homework!\n%s is losing motivation!\n\n", player[globalID].name, player[globalID].name);
+    slowPrint(string, SLOWPRINT_INTERVAL);
+    player[globalID].curMp --;
+    continue;
+  case 2:
+    sprintf(string, "%s is asleep!\n%s cannot attack!!\n\n", player[globalID].name, player[globalID].name);
+    slowPrint(string, SLOWPRINT_INTERVAL);
+    continue;
+  case 3:
+    sprintf(string, "%s is poisoned!\n%s is losing hp!\n\n", player[globalID].name, player[globalID].name);
+    slowPrint(string, SLOWPRINT_INTERVAL);
+    player[globalID].curHp --;
+    continue;
+  }
+ }
+}
+
+
+void getStatusName(int statusId, char * string)
+{
+  switch (statusId) {
+    case 0:
+      break;
+    case 1:
+      strcpy(string, "homework");
+      break;
+  case 2:
+    strcpy(string, "sleep");
+    break;
+  case 3:
+    strcpy(string, "posion");
+    break;
+  default:
+    break;
+  }
 }
 
 void slowPrint(char *characters, int interval)
