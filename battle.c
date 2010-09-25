@@ -78,7 +78,7 @@ struct plyr {
 };
 
 void loadEnemy(int, int);
-void slowPrint(char*, int);
+void slowPrint(char *, int);
 int rollD20();
 int doAttack(int, int, int, int);
 void updateDefinedEnemyData(int);
@@ -100,10 +100,13 @@ void doBattle(int, int, int);
 int techMenu(int);
 int doTech(int, int, int);
 void computerAttack(int, int);
+int addStatus(int, int);
+void statusEffect(int);
+void getStatusName(int, char *);
 
 struct plyr player[2];
 
-int main()
+int main(int argc, char **argv)
 {
 	int choice;
 	int i;
