@@ -696,6 +696,22 @@ void computerAttack(int computerID, int targetID)
 	
 }
 
+int addStatus(int statusID, int playerID)  //Returns a zero for success, a 1 if the status array is full, and a -1 if the status is already there
+{
+	for (i = 0; i < NUM_OF_STATUS_AILMENTS; i++) {
+		if (player[playerID].status[i] == statusID) {
+			return -1;
+		}
+	}
+	for (i = 0; i < NUM_OF_STATUS_AILMENTS; i++) {
+		if (player[playerID].status[i] == 0) {
+			player[playerID].status[i] = statusID;
+			return 0;
+		}
+	}
+	return 1;
+}
+
 int mathAttack(int x)
 {
 	return 2 * (x) + 7;
