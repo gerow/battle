@@ -20,6 +20,24 @@
 #define NUM_OF_STATUS_AILMENTS 3
 #define INVENTORY_SIZE 10
 
+//ITEMS
+#define ITEM_EVK_FOOD 1
+#define ITEM_PARKSIDE_FOOD 2
+#define ITEM_PANDA_FOOD 3
+#define ITEM_COFFEE 4
+#define ITEM_STARBUCKS 5
+
+//TECHS
+#define TECH_PROTRACTOR_ATTACK 1
+#define TECH_REINFORCE 2
+#define TECH_BREATHE 3
+#define TECH_READING 4
+
+//STATUSES
+#define STATUS_HOMEWORK 1
+#define STATUS_SLEEPING 2
+#define STATUS_POISON 3
+
 struct wpn {
 	char name[LEN_OF_NAME];
 	int modAttack;
@@ -99,6 +117,7 @@ void getStatusName(int, char *);
 int arraySum(int *, int);
 void bubbleSort (int *, int);
 int addItem(int, int);
+int askYesNoQuestion(char *);
 
 struct plyr player[2];
 
@@ -112,18 +131,25 @@ int main(int argc, char **argv)
 	for (i = 0; i < NUM_OF_PLAYERS; i++) {  //Load default values into both player structs
 		loadDefaults(i);
 	}
+	
+	printf("\n\n\n");
 	choice = mainMenu();
+	printf("\n");
 	if (choice == 1) {
 		initPlayer(PLAYER_ID);  //Load
-		//TEMP
-		for (i = 0;i < 5;i++){
-			player[PLAYER_ID].inventory[i] = i + 1;
+		choice = askYesNoQuestion("You are walking along and you notice EVK is open.  Do you get some?");
+		if (choice){
+			printf("EVK Food has been added to your inventory\n");
+			addItem(1, PLAYER_ID);
 		}
-		for (i = 0;i < 5;i++){
-			player[ENEMY_ID].inventory[i] = i + 1;
+		else {
+			printf("Yeah, parkside is better anyway.\n");
 		}
-		player[PLAYER_ID].inventory[5] = 5;
-		//TEMP
+		printf("You're walking along just minding your own business when...\n ");
+		printf("Press enter to continue ");
+		getchar();
+		printf("\n");
+		
 		updatePlayerData(PLAYER_ID);
 		j = doBattle(PLAYER_ID, ENEMY_ID, 0);
 		if (j) {
@@ -311,14 +337,14 @@ int statusEffect(int globalID)
 		switch(player[globalID].status[i]) {
 			case 0:
 				continue;
-			case 1:
+			case STATUS_HOMEWORK:
 				if (dispel < 3) {
 					player[globalID].status[i] =0;
 					sprintf(string, "%s is no longer doing homework!\n", player[globalID].name);
 					slowPrint(string, SLOWPRINT_INTERVAL);
 					continue;
 				}
-			case 2:
+			case STATUS_SLEEPING:
 				if (dispel < 4) {
 					player[globalID].status[i] =0;
 					player[globalID].canAttack = 1;
@@ -326,7 +352,7 @@ int statusEffect(int globalID)
 					slowPrint(string, SLOWPRINT_INTERVAL);
 					continue;
 				}
-			case 3:
+			case STATUS_POISON:
 				if (dispel < 2) {
 					player[globalID].status[i] =0;
 					sprintf(string, "%s is no longer poisoned!\n", player[globalID].name);
@@ -341,17 +367,17 @@ int statusEffect(int globalID)
 		switch (player[globalID].status[i]) {
 			case 0:
 				continue;
-			case 1:
+			case STATUS_HOMEWORK:
 				sprintf(string, "%s is doing homework!\n%s is losing motivation!\n\n", player[globalID].name, player[globalID].name);
 				slowPrint(string, SLOWPRINT_INTERVAL);
 				player[globalID].curMp --;
 				continue;
-			case 2:
+			case STATUS_SLEEPING:
 				sprintf(string, "%s is asleep!\n%s cannot move!!\n\n", player[globalID].name, player[globalID].name);
 				slowPrint(string, SLOWPRINT_INTERVAL);
 				returnValue = 0;
 				continue;
-			case 3:
+			case STATUS_POISON:
 				sprintf(string, "%s is poisoned!\n%s is losing hp!\n\n", player[globalID].name, player[globalID].name);
 				slowPrint(string, SLOWPRINT_INTERVAL);
 				player[globalID].curHp --;
@@ -367,13 +393,13 @@ void getStatusName(int statusId, char * string)
 	switch (statusId) {
 		case 0:
 			break;
-		case 1:
+		case STATUS_HOMEWORK:
 			strcpy(string, "homework");
 			break;
-		case 2:
+		case STATUS_SLEEPING:
 			strcpy(string, "sleep");
 			break;
-		case 3:
+		case STATUS_POISON:
 			strcpy(string, "posion");
 			break;
 		default:
@@ -461,22 +487,6 @@ int doBattle(playerID, globalEnemyID, enemyID)
 								damageMp = doAttack(player[playerID].moveMp, playerID, globalEnemyID, 2);
 								printf("%s lost %d mp!\n",player[globalEnemyID].name, damageMp);
 							}
-							
-							//if (player[playerID].moveHp == 0) {
-							// break;
-							//}
-							//else {
-							// heal = doAttack(player[playerID].moveHp, playerID, globalEnemyID, 3);
-							// printf("You healed %d hp!!\n", heal);
-							//}
-							
-							//if (player[playerID].moveMp == 0) {
-							// break;
-							//}
-							//else {
-							//recoveredMp = doAttack(player[playerID].moveMp, playerID, globalEnemyID, 4);
-							//printf("You recovered %d mp!!\n", recoveredMp);
-							//}
 						}	
 					}
 					break;
@@ -529,6 +539,7 @@ int doBattle(playerID, globalEnemyID, enemyID)
 		statusEffect(playerID);
 		if (player[globalEnemyID].canAttack == 1){
 			computerAttack(globalEnemyID, playerID);
+			printf("\n");
 		}
 		if (player[playerID].curHp == 0) {
 			printf("You lost to %s!!\n", player[globalEnemyID].name);
@@ -582,10 +593,8 @@ void initPlayer(int id)
 	updatePlayerData(PLAYER_ID);
 	player[id].curHp = player[id].baseHp;
 	player[id].curMp = player[id].baseMp;
-	player[id].tech[0] = 1;
-	player[id].tech[1] = 2;
-	player[id].tech[2] = 0;
-	player[id].tech[3] = 0;
+	player[id].tech[0] = TECH_PROTRACTOR_ATTACK;
+	player[id].tech[1] = TECH_REINFORCE;
 }
 
 int printMenu(int pid, int eid)
@@ -639,7 +648,7 @@ int doTech(techID, sourceID, targetID)
 		case 0:
 			printf("You broke it\n\n");
 			return 0;
-		case 1:
+		case TECH_PROTRACTOR_ATTACK:
 			if (player[sourceID].curMp >= 1) {
 				sprintf(string, "%s used protractor attack!\n", player[sourceID].name);
 		        slowPrint(string, SLOWPRINT_INTERVAL);
@@ -652,7 +661,7 @@ int doTech(techID, sourceID, targetID)
 				return 0;
 			}
 			
-		case 2:
+		case TECH_REINFORCE:
 			if(player[sourceID].curMp > 1) {
 		        sprintf(string, "%s used reinforce!\n", player[sourceID].name);
 				slowPrint(string, SLOWPRINT_INTERVAL);
@@ -663,12 +672,11 @@ int doTech(techID, sourceID, targetID)
 				return 0;
 			}
 			
-		case 3:
+		case TECH_BREATHE:
 			if (player[sourceID].curMp >= 1) {
 				player[sourceID].curMp -= 1;
 				sprintf(string, "%s used breathe", player[sourceID].name);
 				slowPrint(string, SLOWPRINT_INTERVAL);
-				slowPrint("...", SLOWPRINT_THINKING);
 				if((rand() % 10) < 8) {
 					sprintf(string, " %s was poisoned!!\n", player[targetID].name);
 					slowPrint(string, SLOWPRINT_INTERVAL);
@@ -683,7 +691,7 @@ int doTech(techID, sourceID, targetID)
 			else {
 				return 0;
 			}
-		case 4:
+		case TECH_READING:
 			if (player[sourceID].curMp >= 1) {
 				sprintf(string, "%s gave reading assignment!\n%s is asleep!\n", player[sourceID].name, player[targetID].name);
 				slowPrint(string, SLOWPRINT_INTERVAL);
@@ -709,14 +717,17 @@ void getTechName(int techId, char *string)
 		case 0:
 			strcpy(string, "No Tech");
 			return;
-		case 1:
+		case TECH_PROTRACTOR_ATTACK:
 			strcpy(string, "Protractor Attack");
 			return;
-		case 2:
+		case TECH_REINFORCE:
 			strcpy(string, "Reinforce");
 			return;
-		case 3:
+		case TECH_BREATHE:
 			strcpy(string, "Breathe");
+			break;
+		case TECH_READING:
+			strcpy(string, "Reading Assignment");
 			break;
 			
 	}
@@ -892,19 +903,19 @@ void getItemName(int itemID, char *name)
 		case 0:
 			strcpy(name, "No Item");
 			return;
-		case 1:
+		case ITEM_EVK_FOOD:
 			strcpy(name, "EVK Food");
 			return;
-		case 2:
+		case ITEM_PARKSIDE_FOOD:
 			strcpy(name, "Parkside Food");
 			return;
-		case 3:
+		case ITEM_PANDA_FOOD:
 			strcpy(name, "Panda Food");
 			return;
-		case 4:
+		case ITEM_COFFEE:
 			strcpy(name, "Coffee");
 			return;
-		case 5:
+		case ITEM_STARBUCKS:
 			strcpy(name, "Starbucks");
 			return;
 		default:
@@ -925,7 +936,7 @@ int doItem(int choice, int sourceID, int targetID)
 		case 0:
 			printf("You broke it\n\n");
 			return 0;
-		case 1:
+		case ITEM_EVK_FOOD:
 			sprintf(string, "%s ate EVK food!\n", player[sourceID].name);
 			slowPrint(string, SLOWPRINT_INTERVAL);
 			
@@ -940,25 +951,25 @@ int doItem(int choice, int sourceID, int targetID)
 				effectType[2] = 1;
 			}
 			break;
-		case 2:
+		case ITEM_PARKSIDE_FOOD:
 			sprintf(string, "%s ate Parkside food!\n", player[sourceID].name);
 			slowPrint(string, SLOWPRINT_INTERVAL);
 			player[sourceID].moveHp = 10;
 			effectType[2] = 1;
 			break;
-		case 3:
+		case ITEM_PANDA_FOOD:
 			sprintf(string, "%s ate Panda food!\n", player[sourceID].name);
 			slowPrint(string, SLOWPRINT_INTERVAL);
 			player[sourceID].moveHp = 20;
 			effectType[2] = 1;
 			break;
-		case 4:
+		case ITEM_COFFEE:
 			sprintf(string, "%s drank coffee!\n", player[sourceID].name);
 			slowPrint(string, SLOWPRINT_INTERVAL);
 			player[sourceID].moveMp = 5;
 			effectType[3] = 1;
 			break;
-		case 5:
+		case ITEM_STARBUCKS:
 			sprintf(string, "%s drank Starbucks!\n", player[sourceID].name);
 			slowPrint(string, SLOWPRINT_INTERVAL);
 			player[sourceID].moveMp = 10;
@@ -1023,6 +1034,31 @@ void bubbleSort(int *a, int n)
 		}
 	}
 }
+
+int askYesNoQuestion(char *question)
+{
+	char choice;
+	int error;
+	
+	while (1){
+		printf("%s", question);
+		printf("\n");
+		printf("Your choice [y/n]:  ");
+		fflush(stdin);
+		error = scanf("%c", &choice);
+		if (choice == 'y'){
+			return 1;
+		}
+		else if (choice == 'n'){
+			return 0;
+		}
+		else {
+			printf("That is not a valid answer.  Please type either y or n.\n\n");
+		}
+	}
+}
+
+	
 
 int mathAttack(int x)
 {
