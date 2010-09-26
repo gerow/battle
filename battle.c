@@ -56,6 +56,7 @@ struct plyr {
 	int moveMp;
 	int status[NUM_OF_STATUS_AILMENTS];
 	int inventory[INVENTORY_SIZE];
+	int canAttack;
 	
 	//Circle of weaknesses
 	
@@ -75,7 +76,7 @@ void updatePlayerData(int);
 void describe(int);
 void initPlayer(int);
 int printMenu(int, int);
-void doItem (int, int, int);
+int doItem (int, int, int);
 void getItemName (int, char *);
 int itemMenu (int);
 int mathAttack(int);
@@ -96,6 +97,7 @@ int addStatus(int, int);
 int statusEffect(int);
 void getStatusName(int, char *);
 int arraySum(int *, int);
+void bubbleSort (int *, int);
 
 struct plyr player[2];
 
@@ -115,6 +117,9 @@ int main(int argc, char **argv)
 		//TEMP
 		for (i = 0;i < 5;i++){
 			player[PLAYER_ID].inventory[i] = i + 1;
+		}
+		for (i = 0;i < 5;i++){
+			player[ENEMY_ID].inventory[i] = i + 1;
 		}
 		player[PLAYER_ID].inventory[5] = 5;
 		//TEMP
@@ -159,6 +164,7 @@ void loadDefaults(int id)
 	player[id].expToNextLevel = 0;
 	player[id].curHp = 1;
 	player[id].curMp = 1;
+	player[id].canAttack = 1;
 	for (i = 0;i < NUM_OF_STATUS_AILMENTS;i++){
 		player[id].status[i] = 0;
 	}
@@ -191,6 +197,7 @@ void loadEnemy(int globalID, int enemyID)
 			player[globalID].level = 1;
 			player[globalID].expValue = 18;
 			player[globalID].tech[0] = 3;
+			player[globalID].tech[1] = 4;
 			break;
 		case 1:
 			//do another
@@ -312,6 +319,7 @@ int statusEffect(int globalID)
 			case 2:
 				if (dispel < 4) {
 					player[globalID].status[i] =0;
+					player[globalID].canAttack = 1;
 					sprintf(string, "%s woke up!\n", player[globalID].name);
 					slowPrint(string, SLOWPRINT_INTERVAL);
 					continue;
@@ -337,7 +345,7 @@ int statusEffect(int globalID)
 				player[globalID].curMp --;
 				continue;
 			case 2:
-				sprintf(string, "%s is asleep!\n%s cannot attack!!\n\n", player[globalID].name, player[globalID].name);
+				sprintf(string, "%s is asleep!\n%s cannot move!!\n\n", player[globalID].name, player[globalID].name);
 				slowPrint(string, SLOWPRINT_INTERVAL);
 				returnValue = 0;
 				continue;
@@ -398,7 +406,6 @@ int doBattle(playerID, globalEnemyID, enemyID)
 	int choice;
 	int techChoice, itemChoice;
 	int damage, damageMp;
-	int canAttack;
 	//int recoveredMp, heal;
 	//int i;
 	char string[LEN_OF_DESCRIPTION];
@@ -406,16 +413,15 @@ int doBattle(playerID, globalEnemyID, enemyID)
 	loadEnemy(globalEnemyID, enemyID);
 	printf("A wild %s appeared!!\n\n", player[globalEnemyID].name);
 	while (1) {
-		choice = printMenu(playerID, globalEnemyID);
 		player[playerID].moveMp = 0;
 		player[playerID].moveHp = 0;
 		player[globalEnemyID].moveHp = 0;
 		player[globalEnemyID].moveMp = 0;
-		if ((choice > 4) || (choice < 1)) {
-			printf("That is not a valid option.\n\n");
-		}
-		canAttack = statusEffect(playerID);
-		if (canAttack){
+		if (player[playerID].canAttack){
+			choice = printMenu(playerID, globalEnemyID);
+			if ((choice > 4) || (choice < 1)) {
+				printf("That is not a valid option.\n\n");
+			}
 			switch (choice) {
 				case 1:
 					//ATTACK
@@ -508,14 +514,15 @@ int doBattle(playerID, globalEnemyID, enemyID)
 			}
 			return 1;
 		}
-		canAttack = statusEffect(globalEnemyID);
-		if (canAttack){
+		statusEffect(playerID);
+		if (player[globalEnemyID].canAttack == 1){
 			computerAttack(globalEnemyID, playerID);
 		}
 		if (player[playerID].curHp == 0) {
 			printf("You lost to %s!!\n", player[globalEnemyID].name);
 			return 0;
 		}
+		statusEffect(globalEnemyID);
 	}
 	return -1;  //THIS IS AN ERROR!!!
 }
@@ -576,10 +583,10 @@ int printMenu(int pid, int eid)
 	char stringOut[LEN_OF_DESCRIPTION];
 	char trash[LEN_OF_DESCRIPTION];
 	int error;
-	sprintf(stringOut, "%s's HP: %d/%d   \t\t%s's HP: %d/%d\n", player[pid].name, player[pid].curHp, player[pid].baseHp,
+	sprintf(stringOut, "%s's HP: %d/%d\t\t%s's HP: %d/%d\n", player[pid].name, player[pid].curHp, player[pid].baseHp,
 			player[eid].name, player[eid].curHp, player[eid].baseHp);
 	slowPrint(stringOut, SLOWPRINT_INTERVAL);
-	sprintf(stringOut, "%s's MP: %d/%d   \t\t%s's MP: %d/%d\n", player[pid].name, player[pid].curMp, player[pid].baseMp,
+	sprintf(stringOut, "%s's MP: %d/%d\t\t%s's MP: %d/%d\n", player[pid].name, player[pid].curMp, player[pid].baseMp,
 			player[eid].name, player[eid].curMp, player[eid].baseMp);
 	slowPrint(stringOut, SLOWPRINT_INTERVAL);
 	printf("\nSelect an option:\n");
@@ -622,12 +629,12 @@ int doTech(techID, sourceID, targetID)
 			printf("You broke it\n\n");
 			return 0;
 		case 1:
-			if (player[sourceID].curMp >= 5) {
+			if (player[sourceID].curMp >= 1) {
 				sprintf(string, "%s used protractor attack!\n", player[sourceID].name);
 		        slowPrint(string, SLOWPRINT_INTERVAL);
 				player[sourceID].moveHp = 5;
 				player[sourceID].moveMp = 5;
-				player[sourceID].curMp -= 5;
+				player[sourceID].curMp -= 1;
 				return 1;
 			}
 			else {
@@ -635,10 +642,10 @@ int doTech(techID, sourceID, targetID)
 			}
 			
 		case 2:
-			if(player[sourceID].curMp > 5) {
+			if(player[sourceID].curMp > 1) {
 		        sprintf(string, "%s used reinforce!\n", player[sourceID].name);
 				slowPrint(string, SLOWPRINT_INTERVAL);
-				player[sourceID].curMp -= 5;
+				player[sourceID].curMp -= 1;
 				return 1;
 			}
 			else {
@@ -646,8 +653,8 @@ int doTech(techID, sourceID, targetID)
 			}
 			
 		case 3:
-			if (player[sourceID].curMp >= 2) {
-				player[sourceID].curMp -= 2;
+			if (player[sourceID].curMp >= 1) {
+				player[sourceID].curMp -= 1;
 				sprintf(string, "%s used breathe", player[sourceID].name);
 				slowPrint(string, SLOWPRINT_INTERVAL);
 				slowPrint("...", SLOWPRINT_THINKING);
@@ -659,12 +666,26 @@ int doTech(techID, sourceID, targetID)
 				else {
 					slowPrint(" It wasn't very effective!\n", SLOWPRINT_INTERVAL);
 				}
-
+				
 				return 1;
 			}
 			else {
 				return 0;
 			}
+		case 4:
+			if (player[sourceID].curMp >= 1) {
+				sprintf(string, "%s gave reading assignment!\n%s is asleep!\n", player[sourceID].name, player[targetID].name);
+				slowPrint(string, SLOWPRINT_INTERVAL);
+				addStatus(2, targetID);
+				player[targetID].canAttack = 0;
+				player[sourceID].curMp -= 1;
+				return 1;
+			}
+			else {
+				return 0;
+			}
+			
+			break;
 			
 		default:
 			return 0;
@@ -686,7 +707,7 @@ void getTechName(int techId, char *string)
 		case 3:
 			strcpy(string, "Breathe");
 			break;
-
+			
 	}
 }
 
@@ -733,15 +754,17 @@ int techMenu(int id)
 void computerAttack(int computerID, int targetID)
 {
 	double randValue;
-	double chanceOfTech = 0.3;
-	double chanceOfItem = 0.1;
+	double chanceOfTech = 0.1;
+	double chanceOfItem = 1;
 	//double chanceOfAttack = 0.6;
 	int damage;
 	char string[LEN_OF_DESCRIPTION];
 	int i;
 	int numOfTechs = 0;
+	int numOfItems = 0;
 	int choice;
 	int techSucceed;
+	int itemSucceed;
 	
 	randValue = (double)rand() / (double)RAND_MAX;
 	sprintf(string, "\n%s is thinking", player[computerID].name);
@@ -763,16 +786,29 @@ void computerAttack(int computerID, int targetID)
 			techSucceed = doTech(player[computerID].tech[choice], computerID, targetID);
 		}
 		if ((numOfTechs <= 0) || (!techSucceed)) {
-			sprintf(string, "%s tried to use a tech", player[computerID].name);
-			slowPrint(string, SLOWPRINT_INTERVAL);
-			slowPrint("...", SLOWPRINT_THINKING);
-			slowPrint(" But couldn't!\n\n", SLOWPRINT_INTERVAL);
+			printf("%s is attacking!!!\n", player[computerID].name);
+			damage = doAttack(player[computerID].cumAttack, computerID, targetID, DO_ATTACK_ENEMY_HP);
+			printf("%s did %d damage!!!\n", player[computerID].name, damage);
 		}
 	}
 	else if (randValue <= (chanceOfTech + chanceOfItem)){
-		//use an item
-		printf("Item unimplemented\n");
+		bubbleSort(player[computerID].inventory, INVENTORY_SIZE);
+		for (i = 0; i < INVENTORY_SIZE; i++) {
+			if (player[computerID].inventory[i] != 0) {
+				numOfItems++;
+			}
+		}
+		if (numOfItems > 0) {
+			choice = rand() % numOfItems;
+			itemSucceed = doItem(player[computerID].inventory[choice], computerID, targetID);
+		}
+		if ((numOfItems <= 0) || (!itemSucceed)) {
+			printf("%s is attacking!!!\n", player[computerID].name);
+			damage = doAttack(player[computerID].cumAttack, computerID, targetID, DO_ATTACK_ENEMY_HP);
+			printf("%s did %d damage!!!\n", player[computerID].name, damage);
+		}
 	}
+	
 	else {
 		//do an attack
 		printf("%s is attacking!!!\n", player[computerID].name);
@@ -805,6 +841,8 @@ int itemMenu(int id)
 	int i;
 	char string[255];
 	int choice;
+	
+	bubbleSort(player[id].inventory, INVENTORY_SIZE);
 	
 	for (i = 0; i < INVENTORY_SIZE; i++) {
 		getItemName(player[id].inventory[i], string);
@@ -850,7 +888,7 @@ void getItemName(int itemID, char *name)
 	}
 }
 
-void doItem(int choice, int sourceID, int targetID)
+int doItem(int choice, int sourceID, int targetID)
 {
 	char string[LEN_OF_DESCRIPTION];
 	int effectType[4];
@@ -862,7 +900,7 @@ void doItem(int choice, int sourceID, int targetID)
 	switch (itemID) {
 		case 0:
 			printf("You broke it\n\n");
-			return;
+			return 0;
 		case 1:
 			sprintf(string, "%s ate EVK food!\n", player[sourceID].name);
 			slowPrint(string, SLOWPRINT_INTERVAL);
@@ -871,7 +909,7 @@ void doItem(int choice, int sourceID, int targetID)
 				addStatus(3, sourceID);
 				sprintf(string, "%s was poisoned!\n", player[sourceID].name);
 				slowPrint(string, SLOWPRINT_INTERVAL);
-				return;
+				break;
 			}
 			else {
 				player[sourceID].moveHp = 5;
@@ -905,7 +943,7 @@ void doItem(int choice, int sourceID, int targetID)
 			effectType[2] = 1;
 			break;
 		default:
-			break;
+			return 0;
 	}
 	
 	if (effectType[0] == 1) { //damage enemy
@@ -940,8 +978,27 @@ void doItem(int choice, int sourceID, int targetID)
 		printf("No effect!\n");
 	}
 	player[sourceID].inventory[choice] = 0;
+	return 1;
 }
 
+void bubbleSort(int *a, int n)
+{
+	int i;
+	int change = 1;
+	int temp;
+	
+	while (change){
+		change = 0;
+		for (i = 0; i < (n - 1); i++) {
+			if (a[i] < a[i + 1]) {
+				change = 1;
+				temp = a[i];
+				a[i] = a[i + 1];
+				a[i + 1] = temp;
+			}
+		}
+	}
+}
 
 int mathAttack(int x)
 {
