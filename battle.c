@@ -98,6 +98,7 @@ int statusEffect(int);
 void getStatusName(int, char *);
 int arraySum(int *, int);
 void bubbleSort (int *, int);
+int addItem(int, int);
 
 struct plyr player[2];
 
@@ -125,7 +126,7 @@ int main(int argc, char **argv)
 		//TEMP
 		updatePlayerData(PLAYER_ID);
 		j = doBattle(PLAYER_ID, ENEMY_ID, 0);
-		if (j == 1) {
+		if (j) {
 			printf("this still isn't coded YAY!");
 			return 0;
 		}
@@ -198,6 +199,7 @@ void loadEnemy(int globalID, int enemyID)
 			player[globalID].expValue = 18;
 			player[globalID].tech[0] = 3;
 			player[globalID].tech[1] = 4;
+			player[globalID].inventory[0] = 1;
 			break;
 		case 1:
 			//do another
