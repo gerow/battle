@@ -125,8 +125,8 @@ int main(int argc, char **argv)
 		//TEMP
 		updatePlayerData(PLAYER_ID);
 		j = doBattle(PLAYER_ID, ENEMY_ID, 0);
-		if (j == 0) {
-			gameOver();
+		if (j == 1) {
+			printf("this still isn't coded YAY!");
 			return 0;
 		}
 		else {
@@ -523,8 +523,7 @@ int doBattle(playerID, globalEnemyID, enemyID)
 			return 0;
 		}
 		statusEffect(globalEnemyID);
-	}
-	return -1;  //THIS IS AN ERROR!!!
+	}//THIS IS AN ERROR!!!
 }
 
 void initPlayer(int id)
@@ -754,8 +753,8 @@ int techMenu(int id)
 void computerAttack(int computerID, int targetID)
 {
 	double randValue;
-	double chanceOfTech = 0.1;
-	double chanceOfItem = 1;
+	double chanceOfTech = 0.3;
+	double chanceOfItem = 0.1;
 	//double chanceOfAttack = 0.6;
 	int damage;
 	char string[LEN_OF_DESCRIPTION];
