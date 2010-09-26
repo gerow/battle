@@ -835,6 +835,19 @@ int addStatus(int statusID, int playerID)  //Returns a zero for success, a 1 if 
 	return 1;
 }
 
+int addItem(int itemID, int playerID)
+{
+	int i;
+	bubbleSort(player[playerID].inventory, INVENTORY_SIZE);
+	for (i = 0; i < INVENTORY_SIZE; i++) {
+		if (player[playerID].inventory[i] == 0) {
+			player[playerID].inventory[i] = itemID;
+			return 1;
+		}
+	}
+	return 0;
+}
+
 int itemMenu(int id)
 {
 	int i;
