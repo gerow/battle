@@ -509,6 +509,16 @@ int doBattle(playerID, globalEnemyID, enemyID)
 				player[PLAYER_ID].level++;
 				sprintf(string, "You leveled up!!!\nYou are now level %d!!!\n", player[PLAYER_ID].level);
 				slowPrint(string, SLOWPRINT_INTERVAL);
+				sprintf(string, "Your attack went up by %d!\n", mathAttack(player[PLAYER_ID].level) - mathAttack(player[PLAYER_ID].level - 1));
+				slowPrint(string, SLOWPRINT_INTERVAL);
+				sprintf(string, "Your defense went up by %d!\n", mathDefense(player[PLAYER_ID].level) - mathAttack(player[PLAYER_ID].level - 1));
+				slowPrint(string, SLOWPRINT_INTERVAL);
+				sprintf(string, "Your tech went up by %d!\n", mathTech(player[PLAYER_ID].level) - mathTech(player[PLAYER_ID].level - 1));
+				slowPrint(string, SLOWPRINT_INTERVAL);
+				sprintf(string, "Your HP went up by %d!\n", mathHp(player[PLAYER_ID].level) - mathHp(player[PLAYER_ID].level - 1));
+				slowPrint(string, SLOWPRINT_INTERVAL);
+				sprintf(string, "Your MP went up by %d!\n", mathMp(player[PLAYER_ID].level) - mathHp(player[PLAYER_ID].level - 1));
+				slowPrint(string, SLOWPRINT_INTERVAL);
 				player[PLAYER_ID].exp -= player[PLAYER_ID].expToNextLevel;
 				updatePlayerData(PLAYER_ID);
 			}
