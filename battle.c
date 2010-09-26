@@ -648,16 +648,16 @@ int doTech(techID, sourceID, targetID)
 		case 3:
 			if (player[sourceID].curMp >= 2) {
 				player[sourceID].curMp -= 2;
-				sprintf(string, "%s used breathe!\n", player[sourceID].name);
+				sprintf(string, "%s used breathe", player[sourceID].name);
 				slowPrint(string, SLOWPRINT_INTERVAL);
 				slowPrint("...", SLOWPRINT_THINKING);
 				if((rand() % 10) < 8) {
-					sprintf(string, "%s was poisoned!!\n", player[targetID].name);
+					sprintf(string, " %s was poisoned!!\n", player[targetID].name);
 					slowPrint(string, SLOWPRINT_INTERVAL);
 					addStatus(3, targetID);
 				}
 				else {
-					slowPrint("It wasn't very effective!\n", SLOWPRINT_INTERVAL);
+					slowPrint(" It wasn't very effective!\n", SLOWPRINT_INTERVAL);
 				}
 
 				return 1;
@@ -733,7 +733,7 @@ int techMenu(int id)
 void computerAttack(int computerID, int targetID)
 {
 	double randValue;
-	double chanceOfTech = 1;
+	double chanceOfTech = 0.3;
 	double chanceOfItem = 0.1;
 	//double chanceOfAttack = 0.6;
 	int damage;
@@ -741,6 +741,7 @@ void computerAttack(int computerID, int targetID)
 	int i;
 	int numOfTechs = 0;
 	int choice;
+	int techSucceed;
 	
 	randValue = (double)rand() / (double)RAND_MAX;
 	sprintf(string, "\n%s is thinking", player[computerID].name);
@@ -759,13 +760,13 @@ void computerAttack(int computerID, int targetID)
 		}
 		if (numOfTechs > 0) {
 			choice = rand() % numOfTechs;
-			doTech(player[computerID].tech[choice], computerID, targetID);
+			techSucceed = doTech(player[computerID].tech[choice], computerID, targetID);
 		}
-		else {
+		if ((numOfTechs <= 0) || (!techSucceed)) {
 			sprintf(string, "%s tried to use a tech", player[computerID].name);
 			slowPrint(string, SLOWPRINT_INTERVAL);
-			slowPrint("... ", SLOWPRINT_THINKING);
-			slowPrint("But doesn't know any!\n\n", SLOWPRINT_INTERVAL);
+			slowPrint("...", SLOWPRINT_THINKING);
+			slowPrint(" But couldn't!\n\n", SLOWPRINT_INTERVAL);
 		}
 	}
 	else if (randValue <= (chanceOfTech + chanceOfItem)){
