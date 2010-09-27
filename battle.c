@@ -256,7 +256,7 @@ void loadDefaults(int id)
 	player[id].typeBusiness = 0;
 }
 
-void loadEnemy(int globalID, int enemyID, int playerID)
+void loadEnemy(int globalID, int enemyID, int playerID) //loads an enemy into the global player struct
 {
 	switch (enemyID) {
 		case ENEMY_BRUIN: //ENEMY: BRUIN
