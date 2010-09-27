@@ -13,7 +13,7 @@
 #define NUM_OF_PLAYERS 2
 #define PLAYER_ID 0
 #define ENEMY_ID 1
-#define SLOWPRINT_INTERVAL 20000
+#define SLOWPRINT_INTERVAL 18000
 #define SLOWPRINT_THINKING 700000
 #define LEN_OF_NAME 40
 #define LEN_OF_DESCRIPTION 256
@@ -183,13 +183,13 @@ int main(int argc, char **argv)
 		initPlayer(PLAYER_ID);  //Load
 		choice = askYesNoQuestion("You are walking along and you notice EVK is open.  Do you get some?");
 		if (choice){
-			printf("EVK Food has been added to your inventory\n");
+			slowPrint("EVK Food has been added to your inventory\n", SLOWPRINT_INTERVAL);
 			addItem(1, PLAYER_ID);
 		}
 		else {
-			printf("Yeah, parkside is better anyway.\n");
+			slowPrint("Yeah, parkside is better anyway.\n\n", SLOWPRINT_INTERVAL);
 		}
-		printf("You're walking along just minding your own business when...\n ");
+		slowPrint("\nYou're walking along just minding your own business when...\n ", SLOWPRINT_INTERVAL);
 		printf("Press enter to continue ");
 		fflush(stdin);
 		getchar();
@@ -199,7 +199,7 @@ int main(int argc, char **argv)
 		if (!j) {
 			gameOver();
 		}
-		printf("You just finished your first battle, nice job!\n");
+		slowPrint("You just finished your first battle, nice job!\n\n", SLOWPRINT_INTERVAL);
 		printf("Now you have the choice to either fight another random enemy or take on the\nfinal boss.\n");
 		printf("I would strongly reccomend you choose to fight another random enemy for now.\n");
 		while (!lost){
@@ -237,12 +237,12 @@ int main(int argc, char **argv)
 				updateDefinedEnemyData(PLAYER_ID);
 				j = doBattle(PLAYER_ID, ENEMY_ID, ENEMY_REDEKOPP);
 				if (j == 0){
-					printf("You lost to Redekopp.\nPerhaps next time you should prepare for his awesomeness\n");
+					slowPrint("You lost to Redekopp.\nPerhaps next time you should prepare for his awesomeness\n\n", SLOWPRINT_INTERVAL);
 					exit(0);
 				}
 				else {
-					printf("You have beaten Redekopp.\nYou are truly king of the campus.\n");
-					printf("Congradulations, you have won!\n");
+					slowPrint("You have beaten Redekopp.\nYou are truly king of the campus.\n", SLOWPRINT_INTERVAL);
+					slowPrint("Congradulations, you have won!\n", SLOWPRINT_INTERVAL);
 					exit(0);
 				}
 
@@ -667,7 +667,8 @@ int doBattle(playerID, globalEnemyID, enemyID)
 	char string[LEN_OF_DESCRIPTION];
 	
 	loadEnemy(globalEnemyID, enemyID, playerID);
-	printf("A wild %s appeared!!\n\n", player[globalEnemyID].name);
+	sprintf(string, "A wild %s appeared!!\n\n", player[globalEnemyID].name);
+	slowPrint(string, SLOWPRINT_INTERVAL);
 	while (1) {
 		player[playerID].moveMp = 0;
 		player[playerID].moveHp = 0;
@@ -682,7 +683,8 @@ int doBattle(playerID, globalEnemyID, enemyID)
 				case 1:
 					//ATTACK
 					damage = doAttack(player[playerID].cumAttack,playerID, globalEnemyID, 1);
-					printf("You did %d damage!!\n\n", damage);
+					sprintf(string, "You did %d damage!!\n\n", damage);
+					slowPrint(string, SLOWPRINT_INTERVAL);
 					break;
 				case 2:
 					techChoice = techMenu(playerID);  //Implement error checking!!!!
@@ -690,12 +692,12 @@ int doBattle(playerID, globalEnemyID, enemyID)
 						continue;
 					}
 					else if (techChoice == 0){
-						printf("No tech selected\n");
+						slowPrint("No tech selected\n", SLOWPRINT_INTERVAL);
 						continue;
 					}
 					else {
 						if(doTech(techChoice, playerID, globalEnemyID) == 0) {
-							printf("Not enough motivation!\n\n");
+							slowPrint("Not enough motivation!\n\n", SLOWPRINT_INTERVAL);
 							continue;
 						}
 						else {
@@ -705,7 +707,8 @@ int doBattle(playerID, globalEnemyID, enemyID)
 							}
 							else {
 								damage = doAttack(player[playerID].moveHp, playerID, globalEnemyID, 1); //calculate damage done to enemy
-								printf("You did %d damage!!\n", damage);
+								sprintf(string, "You did %d damage!!\n", damage);
+								slowPrint(string, SLOWPRINT_INTERVAL);
 							}
 							
 							if (player[playerID].moveMp == 0) {
@@ -713,7 +716,8 @@ int doBattle(playerID, globalEnemyID, enemyID)
 							}
 							else {
 								damageMp = doAttack(player[playerID].moveMp, playerID, globalEnemyID, 2);
-								printf("%s lost %d mp!\n",player[globalEnemyID].name, damageMp);
+								sprintf(string, "%s lost %d mp!\n",player[globalEnemyID].name, damageMp);
+								slowPrint(string, SLOWPRINT_INTERVAL);
 							}
 						}	
 					}
@@ -724,7 +728,7 @@ int doBattle(playerID, globalEnemyID, enemyID)
 						continue;
 					}
 					else if (itemChoice == 0){
-						printf("No item selected\n\n");
+						slowPrint("No item selected\n\n", SLOWPRINT_INTERVAL);
 						continue;
 					}
 					else {
@@ -737,28 +741,26 @@ int doBattle(playerID, globalEnemyID, enemyID)
 					describe(globalEnemyID);
 					continue;
 				default:
-					printf("That is not a valid option\n\n");
+					slowPrint("That is not a valid option\n\n", SLOWPRINT_INTERVAL);
 					continue;
 					//break;
 			}
 		}
 		if (player[globalEnemyID].curHp == 0) {
-			printf("You beat %s!!\n", player[globalEnemyID].name);
+			sprintf(string, "You beat %s!!\n", player[globalEnemyID].name);
+			slowPrint(string, SLOWPRINT_INTERVAL);
 			player[PLAYER_ID].exp += player[ENEMY_ID].expValue;
 			while (player[PLAYER_ID].exp >= player[PLAYER_ID].expToNextLevel) {
 				player[PLAYER_ID].level++;
-				sprintf(string, "You leveled up!!!\nYou are now level %d!!!\n", player[PLAYER_ID].level);
+				sprintf(string, "You leveled up!!!\nYou are now level %d!!!\n\n", player[PLAYER_ID].level);
 				slowPrint(string, SLOWPRINT_INTERVAL);
-				sprintf(string, "Your attack went up by %d!\n", mathAttack(player[PLAYER_ID].level) - mathAttack(player[PLAYER_ID].level - 1));
-				slowPrint(string, SLOWPRINT_INTERVAL);
-				sprintf(string, "Your defense went up by %d!\n", mathDefense(player[PLAYER_ID].level) - mathDefense(player[PLAYER_ID].level - 1));
-				slowPrint(string, SLOWPRINT_INTERVAL);
-				sprintf(string, "Your tech went up by %d!\n", mathTech(player[PLAYER_ID].level) - mathTech(player[PLAYER_ID].level - 1));
-				slowPrint(string, SLOWPRINT_INTERVAL);
-				sprintf(string, "Your HP went up by %d!\n", mathHp(player[PLAYER_ID].level) - mathHp(player[PLAYER_ID].level - 1));
-				slowPrint(string, SLOWPRINT_INTERVAL);
-				sprintf(string, "Your MP went up by %d!\n", mathMp(player[PLAYER_ID].level) - mathMp(player[PLAYER_ID].level - 1));
-				slowPrint(string, SLOWPRINT_INTERVAL);
+
+				printf("Your attack went up by %d!\n", mathAttack(player[PLAYER_ID].level) - mathAttack(player[PLAYER_ID].level - 1));
+				printf("Your defense went up by %d!\n", mathDefense(player[PLAYER_ID].level) - mathDefense(player[PLAYER_ID].level - 1));
+				printf("Your tech went up by %d!\n", mathTech(player[PLAYER_ID].level) - mathTech(player[PLAYER_ID].level - 1));
+				printf("Your HP went up by %d!\n", mathHp(player[PLAYER_ID].level) - mathHp(player[PLAYER_ID].level - 1));
+				printf("Your MP went up by %d!\n", mathMp(player[PLAYER_ID].level) - mathMp(player[PLAYER_ID].level - 1));
+
 				player[PLAYER_ID].exp -= player[PLAYER_ID].expToNextLevel;
 				updatePlayerData(PLAYER_ID);
 			}
@@ -770,7 +772,8 @@ int doBattle(playerID, globalEnemyID, enemyID)
 			printf("\n");
 		}
 		if (player[playerID].curHp == 0) {
-			printf("You lost to %s!!\n", player[globalEnemyID].name);
+			sprintf(string, "You lost to %s!!\n", player[globalEnemyID].name);
+			slowPrint(string, SLOWPRINT_INTERVAL);
 			return 0;
 		}
 		statusEffect(globalEnemyID);
@@ -792,7 +795,7 @@ void initPlayer(int id) //initializes basic player data and prints initial story
 	while (!nameRight) {
 		printf("UPRCLSMAN: Welcome to USC, new student, what is your first name?\n\tName (with no spaces): ");
 		scanf("%40s", player[id].name);
-		printf("UPRCLSMAN:  Your name is %s, is that correct?  [y/n] ", player[id].name);
+		printf("\nUPRCLSMAN:  Your name is %s, is that correct?  [y/n] ", player[id].name);
 		getchar();
 		scanf("%c", &yesNo);
 		if (yesNo == 'y'){
@@ -802,7 +805,7 @@ void initPlayer(int id) //initializes basic player data and prints initial story
 			printf("Oops, let's try that again\n");
 		}
 	}
-	printf("UPRCLSMAN:  Great, here are your keys to %s.  Enjoy your first day!\n\n", room);
+	printf("\nUPRCLSMAN:  Great, here are your keys to %s.  Enjoy your first day!\n\n", room);
 	
 	//LOAD UP DEFAULT.  WILL CHANGE WITH STORY LATER!!!
 	//
@@ -828,15 +831,13 @@ void initPlayer(int id) //initializes basic player data and prints initial story
 int printMenu(int pid, int eid) //prints battle menu
 {
 	int choice;
-	char stringOut[LEN_OF_DESCRIPTION];
+	//char stringOut[LEN_OF_DESCRIPTION];
 	char trash[LEN_OF_DESCRIPTION];
 	int error;
-	sprintf(stringOut, "%s's HP: %d/%d\t\t%s's HP: %d/%d\n", player[pid].name, player[pid].curHp, player[pid].baseHp, //displays curent values of player and enemy
+	printf("%s's HP: %d/%d\t\t%s's HP: %d/%d\n", player[pid].name, player[pid].curHp, player[pid].baseHp, //displays curent values of player and enemy
 			player[eid].name, player[eid].curHp, player[eid].baseHp);
-	slowPrint(stringOut, SLOWPRINT_INTERVAL);
-	sprintf(stringOut, "%s's MP: %d/%d\t\t%s's MP: %d/%d\n", player[pid].name, player[pid].curMp, player[pid].baseMp,
+	printf("%s's MP: %d/%d\t\t%s's MP: %d/%d\n", player[pid].name, player[pid].curMp, player[pid].baseMp,
 			player[eid].name, player[eid].curMp, player[eid].baseMp);
-	slowPrint(stringOut, SLOWPRINT_INTERVAL);
 	printf("\nSelect an option:\n"); //then reads player's action
 	printf("1.  Attack\t\t3.  Inventory\n");
 	printf("2.  Tech\t\t4.  Describe\n");
