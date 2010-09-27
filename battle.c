@@ -272,7 +272,7 @@ int getItemDrop(enemyID)
 
 }
 
-int betweenBattleMenu()
+int betweenBattleMenu() //menu in between battles due to lack of story implementation
 {
 	int choice;
 	
@@ -340,7 +340,7 @@ void loadEnemy(int globalID, int enemyID, int playerID) //loads an enemy into th
 			strcpy(player[globalID].name, "Bruin");
 			strcpy(player[globalID].armorName, "UCLA Sweatshirt");
 			player[globalID].armorModDefense = 1;
-			strcpy(player[globalID].weapon.name, "fork");
+			strcpy(player[globalID].weapon.name, "Fork");
 			player[globalID].weapon.modAttack = 0;
 			player[globalID].weapon.modTech = 0;
 			if (player[playerID].level > 1) {
@@ -355,9 +355,9 @@ void loadEnemy(int globalID, int enemyID, int playerID) //loads an enemy into th
 			break;
 		case ENEMY_STANFORD:
 			strcpy(player[globalID].name, "Stanford the Tree");
-			strcpy(player[globalID].armorName, "bark");
+			strcpy(player[globalID].armorName, "Bark");
 			player[globalID].armorModDefense = 2;
-			strcpy(player[globalID].weapon.name, "branch");
+			strcpy(player[globalID].weapon.name, "Branch");
 			player[globalID].weapon.modAttack = 0;
 			player[globalID].weapon.modTech = 1;
 			if (player[playerID].level > 1) {
@@ -372,9 +372,9 @@ void loadEnemy(int globalID, int enemyID, int playerID) //loads an enemy into th
 			break;
 		case ENEMY_BEAR:
 			strcpy(player[globalID].name, "Golden Bear");
-			strcpy(player[globalID].armorName, "nothing but fur");
+			strcpy(player[globalID].armorName, "Nothing but Fur");
 			player[globalID].armorModDefense = 1;
-			strcpy(player[globalID].weapon.name, "claw");
+			strcpy(player[globalID].weapon.name, "Claw");
 			player[globalID].weapon.modAttack = 2;
 			player[globalID].weapon.modTech = 0;
 			if (player[playerID].level > 1) {
@@ -390,9 +390,9 @@ void loadEnemy(int globalID, int enemyID, int playerID) //loads an enemy into th
 			break;
 		case ENEMY_DUCK:
 			strcpy(player[globalID].name, "Oregon Duck");
-			strcpy(player[globalID].armorName, "useless feathers");
+			strcpy(player[globalID].armorName, "Useless Feathers");
 			player[globalID].armorModDefense = 1;
-			strcpy(player[globalID].weapon.name, "duck bill");
+			strcpy(player[globalID].weapon.name, "Duck Bill");
 			player[globalID].weapon.modAttack = 1;
 			player[globalID].weapon.modTech = 2;
 			if (player[playerID].level > 1) {
@@ -408,9 +408,9 @@ void loadEnemy(int globalID, int enemyID, int playerID) //loads an enemy into th
 			break;
 		case ENEMY_RA:
 			strcpy(player[globalID].name, "RA");
-			strcpy(player[globalID].armorName, "stern disapproval");
+			strcpy(player[globalID].armorName, "Stern Disapproval");
 			player[globalID].armorModDefense = 1;
-			strcpy(player[globalID].weapon.name, "condom bucket");
+			strcpy(player[globalID].weapon.name, "Condom Bucket");
 			player[globalID].weapon.modAttack = 1;
 			player[globalID].weapon.modTech = 1;
 			if (player[playerID].level > 1) {
@@ -429,7 +429,7 @@ void loadEnemy(int globalID, int enemyID, int playerID) //loads an enemy into th
 			strcpy(player[globalID].name, "Redekopp");
 			strcpy(player[globalID].armorName, "PhD");
 			player[globalID].armorModDefense = 5;
-			strcpy(player[globalID].weapon.name, "compiler");
+			strcpy(player[globalID].weapon.name, "Compiler");
 			player[globalID].weapon.modAttack = 4;
 			player[globalID].weapon.modTech = 9;
 			player[globalID].level = 15;
