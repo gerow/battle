@@ -66,6 +66,7 @@
 #define TECH_LOGICAL_PUZZLE 16
 #define TECH_LECTURE 17
 #define TECH_MAGIC_MISSILE 18
+#define TECH_THORN 19
 
 //STATUSES
 #define STATUS_HOMEWORK 1
@@ -374,6 +375,7 @@ void loadEnemy(int globalID, int enemyID, int playerID) //loads an enemy into th
 			player[globalID].expValue = mathExpEnemyValue(player[globalID].level);
 			player[globalID].tech[0] = TECH_GROW;
 			player[globalID].tech[1] = TECH_FALL_OVER;
+			player[globalID].tech[2] = TECH_THORN;
 			addItem(ITEM_SHIELD, globalID);
 			addItem(ITEM_ANTIDOTE, globalID);
 			break;
@@ -393,12 +395,9 @@ void loadEnemy(int globalID, int enemyID, int playerID) //loads an enemy into th
 			player[globalID].expValue = mathExpEnemyValue(player[globalID].level);
 			player[globalID].tech[0] = TECH_HIBERNATE;
 			player[globalID].tech[1] = TECH_BITE;
-<<<<<<< HEAD
 			addItem(ITEM_BOOK, globalID);
 			addItem(ITEM_PANDA_FOOD, globalID);
-=======
 			player[globalID].tech[2] = TECH_REINFORCE;
->>>>>>> 8018c16ff9d092a431f1febab8af442037062d14
 			break;
 		case ENEMY_DUCK:
 			strcpy(player[globalID].name, "Oregon Duck");
@@ -416,12 +415,9 @@ void loadEnemy(int globalID, int enemyID, int playerID) //loads an enemy into th
 			player[globalID].expValue = mathExpEnemyValue(player[globalID].level);
 			player[globalID].tech[0] = TECH_QUACK;
 			player[globalID].tech[1] = TECH_WADDLE;
-<<<<<<< HEAD
 			addItem(ITEM_COFFEE, globalID);
 			addItem(ITEM_BOOK, globalID);
-=======
 			player[globalID].tech[2] = TECH_BITE;
->>>>>>> 8018c16ff9d092a431f1febab8af442037062d14
 			break;
 		case ENEMY_RA:
 			strcpy(player[globalID].name, "RA");
@@ -933,7 +929,7 @@ int doTech(techID, sourceID, targetID) //loads up tech values to temporary varia
 			if (player[sourceID].curMp >= 45) {
 				sprintf(string, "%s gave Reading Assignment!\n%s is asleep!\n", player[sourceID].name, player[targetID].name);
 				slowPrint(string, SLOWPRINT_INTERVAL);
-				addStatus(STATUS_SLEEP, targetID);
+				addStatus(STATUS_SLEEPING, targetID);
 				player[targetID].canAttack = 0;
 				player[sourceID].curMp -= 45;
 				return 1;
@@ -967,6 +963,7 @@ int doTech(techID, sourceID, targetID) //loads up tech values to temporary varia
 				else {
 					slowPrint(" It wasn't very effective!\n", SLOWPRINT_INTERVAL);
 				}
+			}
 		case TECH_FALL_OVER:
 			if (player[sourceID].curMp >= 63) {
 				sprintf(string, "%s used Fall Over!\n", player[sourceID].name);
@@ -983,9 +980,10 @@ int doTech(techID, sourceID, targetID) //loads up tech values to temporary varia
 			}
 		case TECH_HIBERNATE:
 			if (player[sourceID].curMp >= 37) {
-				sprintf(string, "%s used Hibernate!\n%s regained health and became motivated!\ns is asleep!!\n", player[sourceID].name, player[sourceID].name, player[sourceID].name, player[sourceID].name);
+				sprintf(string, "%s used Hibernate!\n%s regained health and became motivated!\n%s is asleep!!\n", player[sourceID].name,
+						player[sourceID].name, player[sourceID].name);
 				slowPrint(string, SLOWPRINT_INTERVAL);
-				addStatus(STATUS_SLEEP, sourceID);
+				addStatus(STATUS_SLEEPING, sourceID);
 				player[sourceID].canAttack = 0;
 				player[sourceID].curHp += player[sourceID].cumTech * 2;
 				if (player[sourceID].curHp > player[sourceID].baseHp) {
@@ -1028,17 +1026,17 @@ int doTech(techID, sourceID, targetID) //loads up tech values to temporary varia
 				return 0;
 			}
 		case TECH_WADDLE:
-				sprintf(string, "%s used Waddle!\n", player[sourceID].name);
-				slowPrint(string, SLOWPRINT_INTERVAL);
-				usleep(THINKING_INTERVAL);
-				slowPrint("It did nothing!\n");
-				return 1;
+			sprintf(string, "%s used Waddle!\n", player[sourceID].name);
+			slowPrint(string, SLOWPRINT_INTERVAL);
+			usleep(SLOWPRINT_THINKING);
+			slowPrint("It did nothing!\n", SLOWPRINT_INTERVAL);
+			return 1;
 		case TECH_ICEBREAKER:
 			if (player[sourceID].curMp >= 2) {
 				sprintf(string, "%s used Icebreaker!\n", player[sourceID].name);
 				slowPrint(string, SLOWPRINT_INTERVAL);
 				player[sourceID].moveHp = player[sourceID].cumTech * 0.3;
-				player[sourceID].moveMp = player[sourceID].cumTech * ;
+				player[sourceID].moveMp = player[sourceID].cumTech;
 				player[sourceID].curMp -= 2;
 				return 1;
 			}
@@ -1059,7 +1057,7 @@ int doTech(techID, sourceID, targetID) //loads up tech values to temporary varia
 			}
 		case TECH_CONFLICT_RESOLUTION:
 			if (player[sourceID].curMp >= 45) {
-				sprintf(string, "%s used Conflict Resolution!\n%s increased stats!\n", player[sourceID].name);
+				sprintf(string, "%s used Conflict Resolution!\n%s increased stats!\n", player[sourceID].name, player[sourceID].name);
 				slowPrint(string, SLOWPRINT_INTERVAL);
 				player[sourceID].cumDefense += player[sourceID].cumTech * 0.1;
 				player[sourceID].cumAttack += player[sourceID].cumTech * 0.1;
@@ -1075,7 +1073,7 @@ int doTech(techID, sourceID, targetID) //loads up tech values to temporary varia
 			if (player[sourceID].curMp >= 16) {
 				sprintf(string, "%s enforced Quiet Hours!\n%s is asleep!\n", player[sourceID].name, player[targetID].name);
 				slowPrint(string, SLOWPRINT_INTERVAL);
-				addStatus(STATUS_SLEEP, targetID);
+				addStatus(STATUS_SLEEPING, targetID);
 				player[targetID].canAttack = 0;
 				player[sourceID].moveHp = player[sourceID].cumTech * 0.4;
 				player[sourceID].moveMp = player[sourceID].cumTech * 0.4;
@@ -1116,7 +1114,7 @@ int doTech(techID, sourceID, targetID) //loads up tech values to temporary varia
 			if (player[sourceID].curMp >= 18) {
 				sprintf(string, "%s used Lecture!!\n", player[sourceID].name);
 				slowPrint(string, SLOWPRINT_INTERVAL);
-				addStatus(STATUS_SLEEP, targetID);
+				addStatus(STATUS_SLEEPING, targetID);
 				player[targetID].canAttack = 0;
 				player[sourceID].moveMp = player[sourceID].cumTech * 0.4;
 				player[sourceID].curMp -= 12;
@@ -1129,14 +1127,14 @@ int doTech(techID, sourceID, targetID) //loads up tech values to temporary varia
 			if (player[sourceID].curMp >= 50) {
 				sprintf(string, "%s casts Magic Missile!!\n\n!!!MASSIVE DAMAGE!!!!!\n", player[sourceID].name);
 				slowPrint(string, 1.5 * SLOWPRINT_INTERVAL);
-				player[targetID].curHp = 1 + (rand() % player[targetID].level]);
+				player[targetID].curHp = 1 + (rand() % player[targetID].level);
 				player[sourceID].curMp -= 50;
 				return 1;
 			}
 			else {
 				return 0;
 			}
-
+			
 			break;
 			
 		default:
