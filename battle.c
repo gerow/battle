@@ -36,11 +36,16 @@
 
 
 //ITEMS
+#define NUM_OF_ITEMS 9
 #define ITEM_EVK_FOOD 1
 #define ITEM_PARKSIDE_FOOD 2
 #define ITEM_PANDA_FOOD 3
 #define ITEM_COFFEE 4
 #define ITEM_STARBUCKS 5
+#define ITEM_SHIELD 6
+#define ITEM_BOOK 7
+#define ITEM_SUSPICIOUS_PACKAGE 8
+#define ITEM_ANTIDOTE 9
 
 //TECHS
 #define TECH_PROTRACTOR_ATTACK 1
@@ -369,6 +374,8 @@ void loadEnemy(int globalID, int enemyID, int playerID) //loads an enemy into th
 			player[globalID].expValue = mathExpEnemyValue(player[globalID].level);
 			player[globalID].tech[0] = TECH_GROW;
 			player[globalID].tech[1] = TECH_FALL_OVER;
+			addItem(ITEM_SHIELD, globalID);
+			addItem(ITEM_ANTIDOTE, globalID);
 			break;
 		case ENEMY_BEAR:
 			strcpy(player[globalID].name, "Golden Bear");
@@ -386,6 +393,8 @@ void loadEnemy(int globalID, int enemyID, int playerID) //loads an enemy into th
 			player[globalID].expValue = mathExpEnemyValue(player[globalID].level);
 			player[globalID].tech[0] = TECH_HIBERNATE;
 			player[globalID].tech[1] = TECH_BITE;
+			addItem(ITEM_BOOK, globalID);
+			addItem(ITEM_PANDA_FOOD, globalID);
 			break;
 		case ENEMY_DUCK:
 			strcpy(player[globalID].name, "Oregon Duck");
@@ -403,6 +412,8 @@ void loadEnemy(int globalID, int enemyID, int playerID) //loads an enemy into th
 			player[globalID].expValue = mathExpEnemyValue(player[globalID].level);
 			player[globalID].tech[0] = TECH_QUACK;
 			player[globalID].tech[1] = TECH_WADDLE;
+			addItem(ITEM_COFFEE, globalID);
+			addItem(ITEM_BOOK, globalID);
 			break;
 		case ENEMY_RA:
 			strcpy(player[globalID].name, "RA");
@@ -423,6 +434,9 @@ void loadEnemy(int globalID, int enemyID, int playerID) //loads an enemy into th
 			player[globalID].tech[2] = TECH_CONFLICT_RESOLUTION;
 			player[globalID].tech[3] = TECH_QUIET_HOURS;
 			break;
+			addItem(ITEM_SUSPICIOUS_PACKAGE, globalID);
+			addItem(ITEM_STARBUCKS, globalID);
+			addItem(ITEM_ANTIDOTE, globalID);
 		case ENEMY_REDEKOPP:
 			strcpy(player[globalID].name, "Redekopp");
 			strcpy(player[globalID].armorName, "PhD");
@@ -1131,6 +1145,18 @@ void getItemName(int itemID, char *name) //fetches name of items without hardcod
 		case ITEM_STARBUCKS:
 			strcpy(name, "Starbucks");
 			return;
+		case ITEM_SHIELD:
+			strcpy(name, "Shield");
+			return;
+		case ITEM_BOOK:
+			strcpy(name, "Book");
+			return;
+		case ITEM_SUSPICIOUS_PACKAGE:
+			strcpy(name, "Suspicious Package");
+			return;
+		case ITEM_ANTIDOTE:
+			strcpy(name, "Antidote");
+			return;
 		default:
 			break;
 	}
@@ -1160,36 +1186,64 @@ int doItem(int choice, int sourceID, int targetID) //loads item stats into temp 
 				break;
 			}
 			else {
-				player[sourceID].moveHp = 5;
+				player[sourceID].moveHp = ((double)(player[sourceID].baseHp) * 0.25);
 				effectType[2] = 1;
 			}
 			break;
 		case ITEM_PARKSIDE_FOOD:
 			sprintf(string, "%s ate Parkside food!\n", player[sourceID].name);
 			slowPrint(string, SLOWPRINT_INTERVAL);
-			player[sourceID].moveHp = 10;
+			player[sourceID].moveHp = ((double)(player[sourceID].baseHp) * 0.5);
 			effectType[2] = 1;
 			break;
 		case ITEM_PANDA_FOOD:
 			sprintf(string, "%s ate Panda food!\n", player[sourceID].name);
 			slowPrint(string, SLOWPRINT_INTERVAL);
-			player[sourceID].moveHp = 20;
+			player[sourceID].moveHp = ((double)(player[sourceID].baseHp) * 0.75);
 			effectType[2] = 1;
 			break;
 		case ITEM_COFFEE:
 			sprintf(string, "%s drank coffee!\n", player[sourceID].name);
 			slowPrint(string, SLOWPRINT_INTERVAL);
-			player[sourceID].moveMp = 5;
+			player[sourceID].moveMp = ((double)(player[sourceID].baseMp) * 0.25);
 			effectType[3] = 1;
 			break;
 		case ITEM_STARBUCKS:
 			sprintf(string, "%s drank Starbucks!\n", player[sourceID].name);
 			slowPrint(string, SLOWPRINT_INTERVAL);
-			player[sourceID].moveMp = 10;
+			player[sourceID].moveMp = ((double)(player[sourceID].baseMp) * 0.5);
 			effectType[3] = 1;
-			player[sourceID].moveHp = 5;
+			player[sourceID].moveHp = ((double)(player[sourceID].baseHp) * 0.5);
 			effectType[2] = 1;
 			break;
+		case ITEM_SHIELD:
+			sprintf(string, "%s used a shield!\n", player[sourceID].name);
+			slowPrint(string, SLOWPRINT_INTERVAL);
+			sprintf(string, "%s's defense has been increased!\n", player[sourceID].name);
+			slowPrint(string, SLOWPRINT_INTERVAL);
+			player[sourceID].cumDefense += 15;
+			break;
+		case ITEM_BOOK:
+			sprintf(string, "%s threw a book at %s!\n", player[sourceID].name, player[targetID].name);
+			slowPrint(string, SLOWPRINT_INTERVAL);
+			slowPrint("..... it really didn't do much!\n", SLOWPRINT_INTERVAL);
+			break;
+		case ITEM_SUSPICIOUS_PACKAGE:
+			sprintf(string, "%s used Suspicious Package!\n", player[sourceID].name);
+			slowPrint(string, SLOWPRINT_INTERVAL);
+			slowPrint("..... it was just a magazine with a blinking light...\n", SLOWPRINT_INTERVAL);
+			break;
+		case ITEM_ANTIDOTE:
+			sprintf(string, "%s used Antidote!\n", player[sourceID].name);
+			slowPrint(string, SLOWPRINT_INTERVAL);
+			for (i = 0; i < NUM_OF_STATUS_AILMENTS; i++) {
+				if (player[sourceID].status[i] == STATUS_POISON) {
+					player[sourceID].status[i] = 0;
+					printf("%s was cured of his/her poisoning!\n", player[sourceID].name);
+				}
+			}
+			break;
+
 		default:
 			return 0;
 	}
