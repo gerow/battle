@@ -251,7 +251,7 @@ void loadDefaults(int id)
 	player[id].typeBusiness = 0;
 }
 
-void loadEnemy(int globalID, int enemyID)
+void loadEnemy(int globalID, int enemyID) //loads enemy into the second player slot
 {
 	switch (enemyID) {
 		case ENEMY_BRUIN: //ENEMY: BRUIN
@@ -798,7 +798,7 @@ int customBattleMenu() //custom battles are still unimplemented
 	return 0;
 }
 
-int techMenu(int id)//displays a modular menu of techs that retrieves the names of the techs from getTechName
+int techMenu(int id) //displays a modular menu of techs that retrieves the names of the techs from getTechName
 {
 	int i;
 	char string[255];
@@ -906,7 +906,7 @@ int addStatus(int statusID, int playerID) //applies statuses onto a player while
 	return 1; //Returns a zero for success, a 1 if the status array is full, and a -1 if the status is already there
 }
 
-int addItem(int itemID, int playerID)
+int addItem(int itemID, int playerID) //sorts inventory then adds item to next empty slot
 {
 	int i;
 	bubbleSort(player[playerID].inventory, INVENTORY_SIZE);
@@ -919,7 +919,7 @@ int addItem(int itemID, int playerID)
 	return 0;
 }
 
-int itemMenu(int id)
+int itemMenu(int id) //displays a modular menu of items that retrieves the names of the items from getTechName
 {
 	int i;
 	char string[255];
@@ -945,7 +945,7 @@ int itemMenu(int id)
 }
 
 
-void getItemName(int itemID, char *name)//fetches name of items without hardcoding the statuses
+void getItemName(int itemID, char *name) //fetches name of items without hardcoding the statuses
 {
 	switch (itemID) {
 		case 0:
@@ -971,16 +971,16 @@ void getItemName(int itemID, char *name)//fetches name of items without hardcodi
 	}
 }
 
-int doItem(int choice, int sourceID, int targetID)
+int doItem(int choice, int sourceID, int targetID) //loads item stats into temp variables and then applies effects
 {
 	char string[LEN_OF_DESCRIPTION];
 	int effectType[4];
 	int itemID = player[sourceID].inventory[choice];
 	int	 i;
 	for (i = 0; i < 4; i++) {
-		effectType[i] = 0;
+		effectType[i] = 0; //effectType allows one item to have multiple effects and still print results effeciently
 	}
-	switch (itemID) {
+	switch (itemID) { //prints message and loads into temp variables
 		case 0:
 			printf("You broke it\n\n");
 			return 0;
@@ -1028,7 +1028,7 @@ int doItem(int choice, int sourceID, int targetID)
 		default:
 			return 0;
 	}
-	
+	//applies effects and prints results
 	if (effectType[0] == 1) { //damage enemy
 		player[targetID].curHp -= player[targetID].moveHp;
 		printf("%s lost %d hp!\n", player[targetID].name, player[targetID].moveHp);
@@ -1064,7 +1064,7 @@ int doItem(int choice, int sourceID, int targetID)
 	return 1;
 }
 
-void bubbleSort(int *a, int n)
+void bubbleSort(int *a, int n) //sorts inventory from largest to smallest so all the blank slots are at the end
 {
 	int i;
 	int change = 1;
@@ -1107,7 +1107,7 @@ int askYesNoQuestion(char *question)
 }
 
 	
-
+//functions used to caluclate base values based on level
 int mathAttack(int x)
 {
 	return 2 * (x) + 7;
