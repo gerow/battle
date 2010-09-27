@@ -864,12 +864,12 @@ int doTech(techID, sourceID, targetID) //loads up tech values to temporary varia
 			printf("You broke it\n\n");
 			return 0;
 		case TECH_PROTRACTOR_ATTACK:
-			if (player[sourceID].curMp >= 6) {
+			if (player[sourceID].curMp >= 6) { //checks if player has adequate mp left
 				sprintf(string, "%s used Protractor Attack!\n", player[sourceID].name);
-		        slowPrint(string, SLOWPRINT_INTERVAL);
-				player[sourceID].moveHp = player[sourceID].baseTech * 0.9;
-				player[sourceID].moveMp = player[sourceID].baseTech * 0.2;
-				player[sourceID].curMp -= 6;
+		        slowPrint(string, SLOWPRINT_INTERVAL); //displays the effects
+				player[sourceID].moveHp = player[sourceID].cumTech * 0.9;  //loads temp values
+				player[sourceID].moveMp = player[sourceID].cumTech * 0.2;
+				player[sourceID].curMp -= 6; //applies mp cost
 				return 1; //the if statement checks if the player has enough mp to use the tech and returns 1 for success
 			}
 			else {
@@ -880,7 +880,7 @@ int doTech(techID, sourceID, targetID) //loads up tech values to temporary varia
 			if(player[sourceID].curMp > 2) {
 		        sprintf(string, "%s used Reinforce!\n", player[sourceID].name);
 				slowPrint(string, SLOWPRINT_INTERVAL);
-				player[sourceID].cumDefense = player[sourceID].baseTech * 0.1;
+				player[sourceID].cumDefense += player[sourceID].cumTech * 0.1;
 				sprintf(string, "%s increased defense!\n", player[sourceID].name);
 				slowPrint(string, SLOWPRINT_INTERVAL);
 				player[sourceID].curMp -= 2;
@@ -925,7 +925,7 @@ int doTech(techID, sourceID, targetID) //loads up tech values to temporary varia
 			if (player[sourceID].curMp >= 2) {
 				sprintf(string, "%s used Grow!\n", player[sourceID].name);
 				slowPrint(string, SLOWPRINT_INTERVAL);
-				player[sourceID].cumDefense = player[sourceID].baseTech * 0.1;
+				player[sourceID].cumDefense += player[sourceID].cumTech * 0.1;
 				sprintf(string, "%s increased defense!\n", player[sourceID].name);
 				slowPrint(string, SLOWPRINT_INTERVAL);
 				player[sourceID].curMp -= 2;
@@ -951,7 +951,7 @@ int doTech(techID, sourceID, targetID) //loads up tech values to temporary varia
 			if (player[sourceID].curMp >= 63) {
 				sprintf(string, "%s used Fall Over!\n", player[sourceID].name);
 				slowPrint(string, SLOWPRINT_INTERVAL);
-				player[sourceID].moveHp = player[sourceID].baseTech * 3;
+				player[sourceID].moveHp = player[sourceID].cumTech * 3;
 				sprintf(string, "%s fell over!\n", player[sourceID].name);
 				slowPrint(string, SLOWPRINT_INTERVAL);
 				player[sourceID].curHp = 0;
@@ -967,11 +967,11 @@ int doTech(techID, sourceID, targetID) //loads up tech values to temporary varia
 				slowPrint(string, SLOWPRINT_INTERVAL);
 				addStatus(STATUS_SLEEP, sourceID);
 				player[sourceID].canAttack = 0;
-				player[sourceID].curHp += player[sourceID].baseTech * 2;
+				player[sourceID].curHp += player[sourceID].cumTech * 2;
 				if (player[sourceID].curHp > player[sourceID].baseHp) {
 					player[sourceID].curHp = player[sourceID].baseHp;
 				}
-				player[sourceID].curMp += player[sourceID].baseTech;
+				player[sourceID].curMp += player[sourceID].cumTech;
 				if (player[sourceID].curMp > player[sourceID].baseMp) {
 					player[sourceID].curMp = player[sourceID].baseMp;
 				}
@@ -984,8 +984,8 @@ int doTech(techID, sourceID, targetID) //loads up tech values to temporary varia
 			if (player[sourceID].curMp >= 16) {
 				sprintf(string, "%s used Bite!\n%s regained health!\n", player[sourceID].name, player[sourceID].name);
 				slowPrint(string, SLOWPRINT_INTERVAL);
-				player[sourceID].moveHp = player[sourceID].baseTech * 0.7;
-				player[sourceID].curHp += player[sourceID].baseTech * 0.4;
+				player[sourceID].moveHp = player[sourceID].cumTech * 0.7;
+				player[sourceID].curHp += player[sourceID].cumTech * 0.4;
 				if (player[sourceID].curHp > player[sourceID].baseHp) {
 					player[sourceID].curHp = player[sourceID].baseHp;
 				}
@@ -999,8 +999,8 @@ int doTech(techID, sourceID, targetID) //loads up tech values to temporary varia
 			if (player[sourceID].curMp >= 2) {
 				sprintf(string, "%s used Quack!\n", player[sourceID].name);
 				slowPrint(string, SLOWPRINT_INTERVAL);
-				player[sourceID].moveHp = player[sourceID].baseTech * 0.6;
-				player[sourceID].moveMp = player[sourceID].baseTech * 0.2;
+				player[sourceID].moveHp = player[sourceID].cumTech * 0.6;
+				player[sourceID].moveMp = player[sourceID].cumTech * 0.2;
 				player[sourceID].curMp -= 2;
 				return 1;
 			}
@@ -1017,8 +1017,8 @@ int doTech(techID, sourceID, targetID) //loads up tech values to temporary varia
 			if (player[sourceID].curMp >= 2) {
 				sprintf(string, "%s used Icebreaker!\n", player[sourceID].name);
 				slowPrint(string, SLOWPRINT_INTERVAL);
-				player[sourceID].moveHp = player[sourceID].baseTech * 0.3;
-				player[sourceID].moveMp = player[sourceID].baseTech;
+				player[sourceID].moveHp = player[sourceID].cumTech * 0.3;
+				player[sourceID].moveMp = player[sourceID].cumTech * ;
 				player[sourceID].curMp -= 2;
 				return 1;
 			}
@@ -1027,9 +1027,10 @@ int doTech(techID, sourceID, targetID) //loads up tech values to temporary varia
 			}
 		case TECH_WRITE_UP:
 			if (player[sourceID].curMp >= 22) {
-				sprintf(string, "%s used Write Up!\n", player[sourceID].name);
+				sprintf(string, "%s used Write Up!\nIt reduced %s's defence!\n", player[sourceID].name, player[targetID].name);
 				slowPrint(string, SLOWPRINT_INTERVAL);
-				player[sourceID].moveHp = player[sourceID].baseTech * 2;
+				player[targetID].cumDefense -= player[sourceID].cumTech * 0.1;
+				player[sourceID].moveHp = player[sourceID].cumTech * 2;
 				player[sourceID].curMp -= 22;
 				return 1;
 			}
@@ -1038,9 +1039,12 @@ int doTech(techID, sourceID, targetID) //loads up tech values to temporary varia
 			}
 		case TECH_CONFLICT_RESOLUTION:
 			if (player[sourceID].curMp >= 45) {
-				sprintf(string, "%s used Conflict Resolution!\n", player[sourceID].name);
+				sprintf(string, "%s used Conflict Resolution!\n%s increased stats!\n", player[sourceID].name);
 				slowPrint(string, SLOWPRINT_INTERVAL);
-				player[sourceID].moveMp = player[sourceID].baseTech * 10;
+				player[sourceID].cumDefense += player[sourceID].cumTech * 0.1;
+				player[sourceID].cumAttack += player[sourceID].cumTech * 0.1;
+				player[sourceID].cumTech += player[sourceID].cumTech * 0.1;
+				player[sourceID].moveMp = player[sourceID].cumTech * 10;
 				player[sourceID].curMp -= 45;
 				return 1;
 			}
@@ -1053,8 +1057,8 @@ int doTech(techID, sourceID, targetID) //loads up tech values to temporary varia
 				slowPrint(string, SLOWPRINT_INTERVAL);
 				addStatus(STATUS_SLEEP, targetID);
 				player[targetID].canAttack = 0;
-				player[sourceID].moveHp = player[sourceID].baseTech * 0.4;
-				player[sourceID].moveMp = player[sourceID].baseTech * 0.4;
+				player[sourceID].moveHp = player[sourceID].cumTech * 0.4;
+				player[sourceID].moveMp = player[sourceID].cumTech * 0.4;
 				player[sourceID].curMp -= 16;
 				return 1;
 			}
@@ -1066,8 +1070,8 @@ int doTech(techID, sourceID, targetID) //loads up tech values to temporary varia
 				sprintf(string, "%s gave Programming Assignment!!\n", player[sourceID].name);
 				slowPrint(string, SLOWPRINT_INTERVAL);
 				addStatus(STATUS_HOMEWORK, targetID);
-				player[sourceID].moveHp = player[sourceID].baseTech * 0.4;
-				player[sourceID].moveMp = player[sourceID].baseTech * 0.6;
+				player[sourceID].moveHp = player[sourceID].cumTech * 0.4;
+				player[sourceID].moveMp = player[sourceID].cumTech * 0.6;
 				player[sourceID].curMp -= 7;
 				return 1;
 			}
@@ -1078,7 +1082,7 @@ int doTech(techID, sourceID, targetID) //loads up tech values to temporary varia
 			if (player[sourceID].curMp >= 0) {
 				sprintf(string, "%s used Logic Puzzle!!\n%s regained motivation!!\n", player[sourceID].name, player[sourceID].name);
 				slowPrint(string, SLOWPRINT_INTERVAL);
-				player[sourceID].moveHp = player[sourceID].baseTech * 0.4;
+				player[sourceID].moveHp = player[sourceID].cumTech * 0.4;
 				player[sourceID].curMp += 30;
 				if (player[sourceID].curMp > player[sourceID].baseHp)	{
 					player[sourceID].curMp = player[sourceID].baseHp;
@@ -1094,7 +1098,7 @@ int doTech(techID, sourceID, targetID) //loads up tech values to temporary varia
 				slowPrint(string, SLOWPRINT_INTERVAL);
 				addStatus(STATUS_SLEEP, targetID);
 				player[targetID].canAttack = 0;
-				player[sourceID].moveMp = player[sourceID].baseTech * 0.4;
+				player[sourceID].moveMp = player[sourceID].cumTech * 0.4;
 				player[sourceID].curMp -= 12;
 				return 1;
 			}
