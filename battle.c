@@ -26,8 +26,14 @@
 #define INVENTORY_SIZE 10
 
 //ENEMIES
-#define NUM_OF_RANDOM_ENEMIES 1
+#define NUM_OF_RANDOM_ENEMIES 5
 #define ENEMY_BRUIN 0
+#define ENEMY_STANFORD 1
+#define ENEMY_BEAR 2
+#define ENEMY_DUCK 3
+#define ENEMY_RA 4
+#define ENEMY_REDEKOPP 256
+
 
 //ITEMS
 #define ITEM_EVK_FOOD 1
@@ -41,6 +47,20 @@
 #define TECH_REINFORCE 2
 #define TECH_BREATHE 3
 #define TECH_READING 4
+#define TECH_GROW 5
+#define TECH_FALL_OVER 6
+#define TECH_HIBERNATE 7
+#define TECH_BITE 8
+#define TECH_QUACK 9
+#define TECH_WADDLE 10
+#define TECH_ICEBREAKER 11
+#define TECH_WRITE_UP 12
+#define TECH_CONFLICT_RESOLUTION 13
+#define TECH_QUIET_HOURS 14
+#define TECH_PROGRAMMING_ASSIGNMENT 15
+#define TECH_LOGICAL_PUZZLE 16
+#define TECH_LECTURE 17
+#define TECH_MAGIC_MISSILE 18
 
 //STATUSES
 #define STATUS_HOMEWORK 1
@@ -272,14 +292,95 @@ void loadEnemy(int globalID, int enemyID, int playerID) //loads an enemy into th
 			else {
 				player[globalID].level = 1;
 			}
-			player[globalID].expValue = 18;
+			player[globalID].expValue = mathExpEnemyValue(player[globalID].level);
 			player[globalID].tech[0] = TECH_BREATHE;
-			player[globalID].tech[1] = TECH_READING;
-			player[globalID].inventory[0] = 1;
+			player[globalID].inventory[0] = ITEM_EVK_FOOD;
 			break;
-		case 1:
-			//do another
+		case ENEMY_STANFORD:
+			strcpy(player[globalID].name, "Stanford the Tree");
+			strcpy(player[globalID].armorName, "bark");
+			player[globalID].armorModDefense = 2;
+			strcpy(player[globalID].weapon.name, "branch");
+			player[globalID].weapon.modAttack = 0;
+			player[globalID].weapon.modTech = 1;
+			if (player[playerID].level > 1) {
+				player[globalID].level = player[playerID].level - 1;
+			}
+			else {
+				player[globalID].level = 1;
+			}
+			player[globalID].expValue = mathExpEnemyValue(player[globalID].level);
+			player[globalID].tech[0] = TECH_GROW;
+			player[globalID].tech[1] = TECH_FALL_OVER;
 			break;
+		case ENEMY_BEAR:
+			strcpy(player[globalID].name, "Golden Bear");
+			strcpy(player[globalID].armorName, "nothing but fur");
+			player[globalID].armorModDefense = 1;
+			strcpy(player[globalID].weapon.name, "claw");
+			player[globalID].weapon.modAttack = 2;
+			player[globalID].weapon.modTech = 0;
+			if (player[playerID].level > 1) {
+				player[globalID].level = player[playerID].level - 1;
+			}
+			else {
+				player[globalID].level = 1;
+			}
+			player[globalID].expValue = mathExpEnemyValue(player[globalID].level);
+			player[globalID].tech[0] = TECH_HIBERNATE;
+			player[globalID].tech[1] = TECH_BITE;
+			break;
+		case ENEMY_DUCK:
+			strcpy(player[globalID].name, "Oregon Duck");
+			strcpy(player[globalID].armorName, "useless feathers");
+			player[globalID].armorModDefense = 1;
+			strcpy(player[globalID].weapon.name, "duck bill");
+			player[globalID].weapon.modAttack = 1;
+			player[globalID].weapon.modTech = 2;
+			if (player[playerID].level > 1) {
+				player[globalID].level = player[playerID].level - 1;
+			}
+			else {
+				player[globalID].level = 1;
+			}
+			player[globalID].expValue = mathExpEnemyValue(player[globalID].level);
+			player[globalID].tech[0] = TECH_QUACK;
+			player[globalID].tech[1] = TECH_WADDLE;
+			break;
+		case ENEMY_RA:
+			strcpy(player[globalID].name, "RA");
+			strcpy(player[globalID].armorName, "stern disapproval");
+			player[globalID].armorModDefense = 1;
+			strcpy(player[globalID].weapon.name, "condom bucket");
+			player[globalID].weapon.modAttack = 1;
+			player[globalID].weapon.modTech = 1;
+			if (player[playerID].level > 1) {
+				player[globalID].level = player[playerID].level - 1;
+			}
+			else {
+				player[globalID].level = 1;
+			}
+			player[globalID].expValue = mathExpEnemyValue(player[globalID].level);
+			player[globalID].tech[0] = TECH_ICEBREAKER;
+			player[globalID].tech[1] = TECH_WRITE_UP;
+			player[globalID].tech[2] = TECH_CONFLICT_RESOLUTION;
+			player[globalID].tech[3] = TECH_QUIET_HOURS;
+			break;
+		case ENEMY_REDEKOPP:
+			strcpy(player[globalID].name, "Redekopp");
+			strcpy(player[globalID].armorName, "PhD");
+			player[globalID].armorModDefense = 5;
+			strcpy(player[globalID].weapon.name, "compiler");
+			player[globalID].weapon.modAttack = 4;
+			player[globalID].weapon.modTech = 9;
+			player[globalID].level = 15;
+			player[globalID].expValue = mathExpEnemyValue(player[globalID].level);
+			player[globalID].tech[0] = TECH_PROGRAMMING_ASSIGNMENT;
+			player[globalID].tech[1] = TECH_LOGICAL_PUZZLE;
+			player[globalID].tech[2] = TECH_LECTURE;
+			player[globalID].tech[3] = TECH_MAGIC_MISSILE;
+			break;
+
 		default:
 			break;
 	}
