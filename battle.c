@@ -150,6 +150,7 @@ void bubbleSort (int *, int);
 int addItem(int, int);
 int askYesNoQuestion(char *);
 int betweenBattleMenu();
+int getItemDrop(int);
 
 struct plyr player[2];
 
@@ -159,7 +160,10 @@ int main(int argc, char **argv)
 	int i, j;
 	int lost = 0;
 	int enemyChoice;
-	//char string[LEN_OF_DESCRIPTION];
+	int droppedItem;
+	char string[LEN_OF_DESCRIPTION];
+	char itemName[LEN_OF_NAME];
+	int itemSucceed;
 	
 	srand((unsigned)(time(0)));  //Seed the random function
 	for (i = 0; i < NUM_OF_PLAYERS; i++) {  //Load default values into both player structs
@@ -199,12 +203,43 @@ int main(int argc, char **argv)
 				loadDefaults(ENEMY_ID);
 				updateDefinedEnemyData(PLAYER_ID);
 				j = doBattle(PLAYER_ID, ENEMY_ID, enemyChoice);
+				droppedItem = getItemDrop(ENEMY_ID);
+				printf("DROPPED  ITEM RETURN: %d\n", droppedItem);
+				if (droppedItem != 0){
+					getItemName(droppedItem, itemName);
+					sprintf(string, "%s dropped %s, would you like to take it?", player[ENEMY_ID].name, itemName);
+					choice = askYesNoQuestion(string);
+					if (choice) {
+						itemSucceed = addItem(droppedItem, PLAYER_ID);
+						if (itemSucceed == 0) {
+							printf("You don't have enough room in your inventory.  Discarding %s\n", itemName);
+						}
+						else {
+							printf("%s has been added to your inventory.\n", itemName);
+						}
+					}
+					else {
+						printf("You discard %s\n", itemName);
+					}
+				}
 				if (j == 0) {
 					gameOver();
 				}
 			}
 			else if (choice == 2){
-				//BOSS
+				loadDefaults(ENEMY_ID);
+				updateDefinedEnemyData(PLAYER_ID);
+				j = doBattle(PLAYER_ID, ENEMY_ID, ENEMY_REDEKOPP);
+				if (j == 0){
+					printf("You lost to Redekopp.\nPerhaps next time you should prepare for his awesomeness\n");
+					exit(0);
+				}
+				else {
+					printf("You have beaten Redekopp.\nYou are truly king of the campus.\n");
+					printf("Congradulations, you have won!\n");
+					exit(0);
+				}
+
 			}
 		}
 	}
@@ -213,6 +248,28 @@ int main(int argc, char **argv)
 		printf("This isn't implemented yet, yay!!!\n");
 	}
 	return 0;
+}
+
+int getItemDrop(enemyID)
+{
+	int i;
+	int numberOfItems = 0;
+	int techChoice = 0;
+	
+	bubbleSort(player[enemyID].inventory, INVENTORY_SIZE);
+	for (i = 0; i < INVENTORY_SIZE; i++) {
+		if (player[enemyID].inventory[i] != 0) {
+			numberOfItems++;
+		}
+	}
+	if (numberOfItems == 0) {
+		return 0;
+	}
+	else {
+		techChoice = rand() % numberOfItems;
+		return player[enemyID].inventory[techChoice];
+	}
+
 }
 
 int betweenBattleMenu()
