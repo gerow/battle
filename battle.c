@@ -834,7 +834,7 @@ int printMenu(int pid, int eid) //prints battle menu
 	return choice;
 }
 
-void gameOver()
+void gameOver() //prints game over screen when player loses
 {
 	int choice;
 	slowPrint("You've lost, nice going.\n\n", SLOWPRINT_INTERVAL);
@@ -842,11 +842,11 @@ void gameOver()
 	printf("2. Transfer to UCLA\n");
 	scanf("%d", &choice);
 	if (choice == 1) {
-		printf("Good luck on your future endeavors.\n");
+		printf("Good luck on your future endeavors\n");
 		exit(0);
 	}
 	else if (choice == 2) {
-		printf("You failed even harder.\n");
+		printf("You failed even harder\n>:( RAWR\n");
 		exit(0);
 	}
 	else {
@@ -1448,7 +1448,7 @@ void bubbleSort(int *a, int n) //sorts inventory from largest to smallest so all
 	}
 }
 
-int askYesNoQuestion(char *question)
+int askYesNoQuestion(char *question) //function to check for choice in the story
 {
 	char choice;
 	int error;
