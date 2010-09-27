@@ -1,3 +1,8 @@
+/*
+ TODO:
+ Scale player and enemy techs
+ Items should restore percentage of health
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -91,7 +96,7 @@ struct plyr {
 	//--------------------------------
 };
 
-void loadEnemy(int, int);
+void loadEnemy(int, int, int);
 void slowPrint(char *, int);
 int rollD20();
 int doAttack(int, int, int, int);
@@ -165,7 +170,7 @@ int main(int argc, char **argv)
 			gameOver();
 		}
 		printf("You just finished your first battle, nice job!\n");
-		printf("Now you have the choice to either fight another random enemy or take on the final boss\n");
+		printf("Now you have the choice to either fight another random enemy or take on the\nfinal boss.\n");
 		printf("I would strongly reccomend you choose to fight another random enemy for now.\n");
 		while (!lost){
 			choice = betweenBattleMenu();
@@ -251,22 +256,22 @@ void loadDefaults(int id)
 	player[id].typeBusiness = 0;
 }
 
-void loadEnemy(int globalID, int enemyID)
+void loadEnemy(int globalID, int enemyID, int playerID)
 {
 	switch (enemyID) {
 		case ENEMY_BRUIN: //ENEMY: BRUIN
 			strcpy(player[globalID].name, "Bruin");
-			player[globalID].baseHp = 15;
-			player[globalID].baseMp = 2;
-			player[globalID].baseTech = 3;
-			player[globalID].baseAttack = 3;
-			player[globalID].baseDefense = 1;
 			strcpy(player[globalID].armorName, "UCLA Sweatshirt");
 			player[globalID].armorModDefense = 1;
 			strcpy(player[globalID].weapon.name, "fork");
 			player[globalID].weapon.modAttack = 0;
 			player[globalID].weapon.modTech = 0;
-			player[globalID].level = 1;
+			if (player[playerID].level > 1) {
+				player[globalID].level = player[playerID].level - 1;
+			}
+			else {
+				player[globalID].level = 1;
+			}
 			player[globalID].expValue = 18;
 			player[globalID].tech[0] = TECH_BREATHE;
 			player[globalID].tech[1] = TECH_READING;
@@ -278,7 +283,7 @@ void loadEnemy(int globalID, int enemyID)
 		default:
 			break;
 	}
-	updateDefinedEnemyData(globalID);
+	updatePlayerData(globalID);
 }
 
 void updateDefinedEnemyData(int globalID) //Sets the cumulative attack, defense and tech without overriding the defined base values
@@ -301,6 +306,8 @@ void updatePlayerData(int globalID) //updates data for player progression as the
 	player[globalID].cumAttack = player[globalID].baseAttack + player[globalID].weapon.modAttack;
 	player[globalID].cumDefense = player[globalID].baseDefense + player[globalID].armorModDefense;
 	player[globalID].cumTech = player[globalID].baseTech + player[globalID].weapon.modTech;
+	player[globalID].curHp = player[globalID].baseHp;
+	player[globalID].curMp = player[globalID].baseMp;
 }
 
 int rollD20()  //Randomly roll a value between 1 and 20
@@ -483,7 +490,7 @@ int doBattle(playerID, globalEnemyID, enemyID)
 	//int i;
 	char string[LEN_OF_DESCRIPTION];
 	
-	loadEnemy(globalEnemyID, enemyID);
+	loadEnemy(globalEnemyID, enemyID, playerID);
 	printf("A wild %s appeared!!\n\n", player[globalEnemyID].name);
 	while (1) {
 		player[playerID].moveMp = 0;
@@ -670,7 +677,7 @@ int printMenu(int pid, int eid) //prints battle menu
 void gameOver()
 {
 	int choice;
-	slowPrint("You partied too hard, drank too much, and studied way too little. You fucked up college.\n\n", SLOWPRINT_INTERVAL);
+	slowPrint("You've lost, nice going.\n\n", SLOWPRINT_INTERVAL);
 	printf("1. Quit\n");
 	printf("2. Transfer to UCLA\n");
 	scanf("%d", &choice);
