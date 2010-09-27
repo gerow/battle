@@ -46,7 +46,7 @@ struct wpn {
 
 struct plyr {
 	char name[LEN_OF_NAME];
-	int baseHp;
+	int baseHp; //base values are derived from the level in the math functions
 	int baseMp;
 	int baseTech;
 	int baseAttack;
@@ -57,32 +57,34 @@ struct plyr {
 	int level;
 	int exp;
 	int expValue;
-	int tech[NUM_OF_TECHS];
+	int tech[NUM_OF_TECHS]; //techs refer to special attacks pulled from their own menu
 	
 	//Cumulative data
 	
-	int cumAttack;
+	int cumAttack; //cumulative data is the sum of the base value and weapon/armor values
 	int cumDefense;
 	int cumTech;
 	int expToNextLevel;
 	
 	//Live data
 	
-	int curHp;
+	int curHp; //current or remaining Hp
 	int curMp;
-	int moveHp;
+	int moveHp; //moveHp and moveMp are temporary values used by techs and items
 	int moveMp;
 	int status[NUM_OF_STATUS_AILMENTS];
 	int inventory[INVENTORY_SIZE];
-	int canAttack;
+	int canAttack; //checks for statuses like sleep
 	
+	//------- unimplemented ----------
 	//Circle of weaknesses
 	
-	int typeEngineering;
+	int typeEngineering; 
 	int typeArt;
 	int typeBusiness;
 	
 	//Eng beats business, business beats art, art beats engineering.  mainly just because.
+	//--------------------------------
 };
 
 void loadEnemy(int, int);
@@ -233,19 +235,19 @@ void loadEnemy(int globalID, int enemyID)
 		default:
 			break;
 	}
-	updateDefinedEnemyData(globalID);  //Sets the cumulative attack, defense and tech to the base plus the weapon and armor mods
+	updateDefinedEnemyData(globalID);
 }
 
-void updateDefinedEnemyData(int globalID)
+void updateDefinedEnemyData(int globalID) //Sets the cumulative attack, defense and tech without overriding the defined base values
 {
 	player[globalID].cumAttack = player[globalID].baseAttack + player[globalID].weapon.modAttack;
 	player[globalID].cumDefense = player[globalID].baseDefense + player[globalID].armorModDefense;
 	player[globalID].cumTech = player[globalID].baseTech + player[globalID].weapon.modTech;
-	player[globalID].curHp = player[globalID].baseHp;  //Sets the enemy's live HP to max
+	player[globalID].curHp = player[globalID].baseHp;  //resets the enemy's live HP to max
 	player[globalID].curMp = player[globalID].baseMp;
 }
 
-void updatePlayerData(int globalID)
+void updatePlayerData(int globalID) //updates data for player progression as they level up
 {
 	player[globalID].baseAttack = mathAttack(player[globalID].level);
 	player[globalID].baseTech = mathTech(player[globalID].level);
@@ -273,7 +275,7 @@ int doAttack(int valueInput, int sourceID, int targetID, int effectType) //using
 	
 	roll = rollD20();
 	if ((roll >= 5) && (roll <= 16)) {
-		//printf("A decent hit!\n");
+		//printf("A decent hit!\n"); ----------- these displays were used to describe the randomized values for attacks but didn't fit in for the techs
 		modifier = 0.9 + (((double)roll / 110.0) * 2);
 	}
 	else if ((roll >= 16) && (roll <= 19)){
@@ -294,7 +296,7 @@ int doAttack(int valueInput, int sourceID, int targetID, int effectType) //using
 		modifier = 0;
 	} //error check with else
 	
-	if (effectType == 1) {
+	if (effectType == 1) { //ifs apply the values based on whether the tech/attack did damage, heal, restored mp or reduced mp
 	    returnValue = (int)(((double)valueInput * modifier) * ((double)(100 - player[targetID].cumDefense)/100.0));
 	    player[targetID].curHp -= returnValue;
 	    if (player[targetID].curHp < 0) {
@@ -308,7 +310,7 @@ int doAttack(int valueInput, int sourceID, int targetID, int effectType) //using
 			player[targetID].curMp = 0;
 	    }
 	}
-	else if (effectType == 3) {
+	else if (effectType == 3) { //randomized healing and mp restore were not used later because the call to this function didn't work with player[sourceID]
 	    returnValue = (int)(((double)valueInput * modifier) * ((double)(100 - player[targetID].cumDefense)/100.0));
 	    player[sourceID].curHp += returnValue;
 	    if (player[sourceID].curHp < 0) {
@@ -331,9 +333,9 @@ int statusEffect(int globalID)
 	int i, dispel;
 	char string[255];
 	int returnValue = 1;
-	
+	//first 'for' loop checks for statuses and cehcks for status expiration
 	for (i = 0; i < NUM_OF_STATUS_AILMENTS; i++) {
-		dispel = rand()%10;
+		dispel = rand()%10; //randomized status expiration
 		switch(player[globalID].status[i]) {
 			case 0:
 				continue;
@@ -363,7 +365,7 @@ int statusEffect(int globalID)
 				continue;
 		}
 	}
-    for(i = 0; i < NUM_OF_STATUS_AILMENTS; i++) {
+    for(i = 0; i < NUM_OF_STATUS_AILMENTS; i++) { //second 'for' loop actually applies the effects
 		switch (player[globalID].status[i]) {
 			case 0:
 				continue;
@@ -388,7 +390,7 @@ int statusEffect(int globalID)
 }
 
 
-void getStatusName(int statusId, char * string)
+void getStatusName(int statusId, char * string) //fetches name of status without hardcoding the statuses
 {
 	switch (statusId) {
 		case 0:
@@ -407,7 +409,7 @@ void getStatusName(int statusId, char * string)
 	}
 }
 
-void slowPrint(char *characters, int interval)
+void slowPrint(char *characters, int interval) //prints text at a slower rate for dramatic effect
 {
 	int i;
 	
@@ -418,7 +420,7 @@ void slowPrint(char *characters, int interval)
 	}
 }
 
-void describe(enemyID)
+void describe(enemyID) //displays basic enemy data
 {
 	char stringOut[255];
 	sprintf(stringOut, "You are fighting a %s.  It appears to be wearing a %s and wielding a %s.\n",
@@ -549,7 +551,7 @@ int doBattle(playerID, globalEnemyID, enemyID)
 	}//THIS IS AN ERROR!!!
 }
 
-void initPlayer(int id)
+void initPlayer(int id) //initializes basic player data and prints initial story text
 {
 	int nameRight = 0;
 	char yesNo;
@@ -597,19 +599,19 @@ void initPlayer(int id)
 	player[id].tech[1] = TECH_REINFORCE;
 }
 
-int printMenu(int pid, int eid)
+int printMenu(int pid, int eid) //prints battle menu
 {
 	int choice;
 	char stringOut[LEN_OF_DESCRIPTION];
 	char trash[LEN_OF_DESCRIPTION];
 	int error;
-	sprintf(stringOut, "%s's HP: %d/%d\t\t%s's HP: %d/%d\n", player[pid].name, player[pid].curHp, player[pid].baseHp,
+	sprintf(stringOut, "%s's HP: %d/%d\t\t%s's HP: %d/%d\n", player[pid].name, player[pid].curHp, player[pid].baseHp, //displays curent values of player and enemy
 			player[eid].name, player[eid].curHp, player[eid].baseHp);
 	slowPrint(stringOut, SLOWPRINT_INTERVAL);
 	sprintf(stringOut, "%s's MP: %d/%d\t\t%s's MP: %d/%d\n", player[pid].name, player[pid].curMp, player[pid].baseMp,
 			player[eid].name, player[eid].curMp, player[eid].baseMp);
 	slowPrint(stringOut, SLOWPRINT_INTERVAL);
-	printf("\nSelect an option:\n");
+	printf("\nSelect an option:\n"); //then reads player's action
 	printf("1.  Attack\t\t3.  Inventory\n");
 	printf("2.  Tech\t\t4.  Describe\n");
 	printf("Your choice:  ");
@@ -641,7 +643,7 @@ int gameOver()
 	
 }
 
-int doTech(techID, sourceID, targetID)
+int doTech(techID, sourceID, targetID) //loads up tech values to temporary variables to be applied in doAttack, this function also defines specifically what each tech does
 {
 	char string[LEN_OF_DESCRIPTION];
 	switch (techID) {
@@ -655,7 +657,7 @@ int doTech(techID, sourceID, targetID)
 				player[sourceID].moveHp = 5;
 				player[sourceID].moveMp = 5;
 				player[sourceID].curMp -= 1;
-				return 1;
+				return 1; //the if statement checks if the player has enough mp to use the tech and returns 1 for success
 			}
 			else {
 				return 0;
@@ -711,7 +713,7 @@ int doTech(techID, sourceID, targetID)
 	}
 }
 
-void getTechName(int techId, char *string)
+void getTechName(int techId, char *string) //fetches name of techs without hardcoding the techs
 {
 	switch (techId) {
 		case 0:
@@ -733,7 +735,7 @@ void getTechName(int techId, char *string)
 	}
 }
 
-int mainMenu()
+int mainMenu() //prints beginning text and options
 {
 	int choice;
 	printf("THE BATTLE FOR THE CAMPUS!!!\n\n");
@@ -744,13 +746,13 @@ int mainMenu()
 	return choice;
 }
 
-int customBattleMenu()
+int customBattleMenu() //custom battles are still unimplemented
 {
 	//stuff
 	return 0;
 }
 
-int techMenu(int id)
+int techMenu(int id)//displays a modular menu of techs that retrieves the names of the techs from getTechName
 {
 	int i;
 	char string[255];
@@ -840,7 +842,7 @@ void computerAttack(int computerID, int targetID)
 	
 }
 
-int addStatus(int statusID, int playerID)  //Returns a zero for success, a 1 if the status array is full, and a -1 if the status is already there
+int addStatus(int statusID, int playerID) //applies statuses onto a player while checking that the status is not already there and there are not too many statuses
 {
 	int i;
 	
@@ -855,7 +857,7 @@ int addStatus(int statusID, int playerID)  //Returns a zero for success, a 1 if 
 			return 0;
 		}
 	}
-	return 1;
+	return 1; //Returns a zero for success, a 1 if the status array is full, and a -1 if the status is already there
 }
 
 int addItem(int itemID, int playerID)
@@ -897,7 +899,7 @@ int itemMenu(int id)
 }
 
 
-void getItemName(int itemID, char *name)
+void getItemName(int itemID, char *name)//fetches name of items without hardcoding the statuses
 {
 	switch (itemID) {
 		case 0:
