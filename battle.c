@@ -211,7 +211,7 @@ int main(int argc, char **argv)
 				j = doBattle(PLAYER_ID, ENEMY_ID, enemyChoice);
 				droppedItem = getItemDrop(ENEMY_ID);
 				printf("DROPPED  ITEM RETURN: %d\n", droppedItem);
-				if (droppedItem != 0){
+				if ((droppedItem != 0) && j){
 					getItemName(droppedItem, itemName);
 					sprintf(string, "%s dropped %s, would you like to take it?", player[ENEMY_ID].name, itemName);
 					choice = askYesNoQuestion(string);
