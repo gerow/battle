@@ -20,6 +20,10 @@
 #define NUM_OF_STATUS_AILMENTS 3
 #define INVENTORY_SIZE 10
 
+//ENEMIES
+#define NUM_OF_RANDOM_ENEMIES 1
+#define ENEMY_BRUIN 0
+
 //ITEMS
 #define ITEM_EVK_FOOD 1
 #define ITEM_PARKSIDE_FOOD 2
@@ -104,7 +108,7 @@ int mathHp(int);
 int mathMp(int);
 int mathExpCost(int);
 int mathExpEnemyValue(int);
-int gameOver();
+void gameOver();
 int mainMenu();
 void loadDefaults(int);
 int doBattle(int, int, int);
@@ -118,6 +122,7 @@ int arraySum(int *, int);
 void bubbleSort (int *, int);
 int addItem(int, int);
 int askYesNoQuestion(char *);
+int betweenBattleMenu();
 
 struct plyr player[2];
 
@@ -125,6 +130,8 @@ int main(int argc, char **argv)
 {
 	int choice;
 	int i, j;
+	int lost = 0;
+	int enemyChoice;
 	//char string[LEN_OF_DESCRIPTION];
 	
 	srand((unsigned)(time(0)));  //Seed the random function
@@ -135,7 +142,7 @@ int main(int argc, char **argv)
 	printf("\n\n\n");
 	choice = mainMenu();
 	printf("\n");
-	if (choice == 1) {
+	if (choice == 1) { //All this is only for the first battle
 		initPlayer(PLAYER_ID);  //Load
 		choice = askYesNoQuestion("You are walking along and you notice EVK is open.  Do you get some?");
 		if (choice){
@@ -147,25 +154,61 @@ int main(int argc, char **argv)
 		}
 		printf("You're walking along just minding your own business when...\n ");
 		printf("Press enter to continue ");
+		fflush(stdin);
 		getchar();
 		printf("\n");
-		
 		updatePlayerData(PLAYER_ID);
 		j = doBattle(PLAYER_ID, ENEMY_ID, 0);
-		if (j) {
-			printf("this still isn't coded YAY!");
-			return 0;
-		}
-		else {
+		if (!j) {
 			gameOver();
 		}
-		
+		printf("You just finished your first battle, nice job!\n");
+		printf("Now you have the choice to either fight another random enemy or take on the final boss\n");
+		printf("I would strongly reccomend you choose to fight another random enemy for now.\n");
+		while (!lost){
+			choice = betweenBattleMenu();
+			if (choice == 1) {
+				enemyChoice = rand() % NUM_OF_RANDOM_ENEMIES;
+				loadDefaults(ENEMY_ID);
+				updateDefinedEnemyData(PLAYER_ID);
+				j = doBattle(PLAYER_ID, ENEMY_ID, enemyChoice);
+				if (j == 0) {
+					gameOver();
+				}
+			}
+			else if (choice == 2){
+				//BOSS
+			}
+		}
 	}
 	
 	else if (choice == 2){
 		printf("This isn't implemented yet, yay!!!\n");
 	}
 	return 0;
+}
+
+int betweenBattleMenu()
+{
+	int choice;
+	
+	while (1){
+		printf("Between battle menuing system:\n\n");
+		printf("1.  Continue to fight random enemies\n");
+		printf("2.  Fight the final boss\n");
+		printf("\nYour choice:  ");
+		scanf("%d", &choice);
+		if (choice == 1) {
+			return 1;
+		}
+		else if (choice == 2) {
+			return 2;
+		}
+		else {
+			printf("That is not a valid option.\n\n");
+		}
+	}
+
 }
 
 void loadDefaults(int id)
@@ -209,7 +252,7 @@ void loadDefaults(int id)
 void loadEnemy(int globalID, int enemyID)
 {
 	switch (enemyID) {
-		case 0: //ENEMY: BRUIN
+		case ENEMY_BRUIN: //ENEMY: BRUIN
 			strcpy(player[globalID].name, "Bruin");
 			player[globalID].baseHp = 15;
 			player[globalID].baseMp = 2;
@@ -223,8 +266,8 @@ void loadEnemy(int globalID, int enemyID)
 			player[globalID].weapon.modTech = 0;
 			player[globalID].level = 1;
 			player[globalID].expValue = 18;
-			player[globalID].tech[0] = 3;
-			player[globalID].tech[1] = 4;
+			player[globalID].tech[0] = TECH_BREATHE;
+			player[globalID].tech[1] = TECH_READING;
 			player[globalID].inventory[0] = 1;
 			break;
 		case 1:
@@ -523,13 +566,13 @@ int doBattle(playerID, globalEnemyID, enemyID)
 				slowPrint(string, SLOWPRINT_INTERVAL);
 				sprintf(string, "Your attack went up by %d!\n", mathAttack(player[PLAYER_ID].level) - mathAttack(player[PLAYER_ID].level - 1));
 				slowPrint(string, SLOWPRINT_INTERVAL);
-				sprintf(string, "Your defense went up by %d!\n", mathDefense(player[PLAYER_ID].level) - mathAttack(player[PLAYER_ID].level - 1));
+				sprintf(string, "Your defense went up by %d!\n", mathDefense(player[PLAYER_ID].level) - mathDefense(player[PLAYER_ID].level - 1));
 				slowPrint(string, SLOWPRINT_INTERVAL);
 				sprintf(string, "Your tech went up by %d!\n", mathTech(player[PLAYER_ID].level) - mathTech(player[PLAYER_ID].level - 1));
 				slowPrint(string, SLOWPRINT_INTERVAL);
 				sprintf(string, "Your HP went up by %d!\n", mathHp(player[PLAYER_ID].level) - mathHp(player[PLAYER_ID].level - 1));
 				slowPrint(string, SLOWPRINT_INTERVAL);
-				sprintf(string, "Your MP went up by %d!\n", mathMp(player[PLAYER_ID].level) - mathHp(player[PLAYER_ID].level - 1));
+				sprintf(string, "Your MP went up by %d!\n", mathMp(player[PLAYER_ID].level) - mathMp(player[PLAYER_ID].level - 1));
 				slowPrint(string, SLOWPRINT_INTERVAL);
 				player[PLAYER_ID].exp -= player[PLAYER_ID].expToNextLevel;
 				updatePlayerData(PLAYER_ID);
@@ -622,21 +665,24 @@ int printMenu(int pid, int eid)
 	return choice;
 }
 
-int gameOver()
+void gameOver()
 {
 	int choice;
 	slowPrint("You partied too hard, drank too much, and studied way too little. You fucked up college.\n\n", SLOWPRINT_INTERVAL);
-	printf("1. Continue\n");
+	printf("1. Quit\n");
 	printf("2. Transfer to UCLA\n");
 	scanf("%d", &choice);
 	if (choice == 1) {
-		return 1;
+		printf("Good luck on your future endeavors.\n");
+		exit(0);
 	}
 	else if (choice == 2) {
-		return 2;
+		printf("You failed even harder.\n");
+		exit(0);
 	}
 	else {
-		return 0;
+		printf("You can't even work a menu prompt");
+		exit(0);
 	}
 	
 }
