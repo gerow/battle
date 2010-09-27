@@ -427,7 +427,7 @@ void loadEnemy(int globalID, int enemyID, int playerID) //loads an enemy into th
 			player[globalID].weapon.modAttack = 1;
 			player[globalID].weapon.modTech = 1;
 			if (player[playerID].level > 1) {
-				player[globalID].level = player[playerID].level - 1;
+				player[globalID].level = player[playerID].level;
 			}
 			else {
 				player[globalID].level = 1;
