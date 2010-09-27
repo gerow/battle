@@ -1,7 +1,7 @@
 /*
- TODO:
- Scale player and enemy techs
- Items should restore percentage of health
+ AUTHORS:
+ Mike Gerow
+ Ben Zhang
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -79,7 +79,7 @@ struct wpn {
 	int modTech;
 };
 
-struct plyr {
+struct plyr { //This is a huge struct to hold all of the important player data
 	char name[LEN_OF_NAME];
 	int baseHp; //base values are derived from the level in the math functions
 	int baseMp;
@@ -177,7 +177,7 @@ int main(int argc, char **argv)
 	}
 	
 	printf("\n\n\n");
-	choice = mainMenu();
+	choice = mainMenu(); //mainMenu prints a menu and returns a choice (0 or 1)
 	printf("\n");
 	if (choice == 1) { //All this is only for the first battle
 		initPlayer(PLAYER_ID);  //Load
@@ -258,6 +258,7 @@ int main(int argc, char **argv)
 
 int getItemDrop(enemyID)
 {
+	//This function searches through the enemy's items and returns the id of a random one
 	int i;
 	int numberOfItems = 0;
 	int techChoice = 0;
@@ -303,6 +304,7 @@ int betweenBattleMenu() //menu in between battles due to lack of story implement
 
 void loadDefaults(int id)
 {
+	//Initializes player data to defaults
 	int i;
 	strcpy(player[id].name, "defaultName");
 	player[id].baseHp = 1;
